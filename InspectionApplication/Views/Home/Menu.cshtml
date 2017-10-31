@@ -1,0 +1,5 @@
+﻿@model List<InspectionApplication.Models.ViewMenu>
+@foreach (var item in Model)
+{
+    <li><a href="~/@item.MenuController/@item.MenuAction"><span class="@item.MenuIcon"></span> @item.MenuName</a></li>
+}

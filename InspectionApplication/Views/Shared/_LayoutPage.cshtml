@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    @*<link href="~/Content/bootstrap.min.css" rel="stylesheet" />*@
+    <link href="~/Content/toastr.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/docs.min.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="~/Scripts/html5shiv.js"></script>
+        <script src="~/Scripts/respond.min.js"></script>
+    <![endif]-->
+    <link href="~/Content/myLayout.css" rel="stylesheet" />
+</head>
+<body>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="~/Scripts/Ewin.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("原辅料网上报检平台", "About", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @Html.Action("Menu", "Home")
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><span class="navbar-text" id="lblUserName"></span></li>
+                    <li><a href="#" id="btnLogOut"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+                </ul>
+            </div>
+</div>
+    </div>
+    <div class="container-fluid" style="padding-top:50px;">
+        <div class="row">
+            <div class="col-md-12">
+                @RenderBody()
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <hr />
+                <small>
+                    版权所有：<span class="glyphicon glyphicon-copyright-mark">
+                    </span>大庆炼化公司信息中心&nbsp;&nbsp;&nbsp;&nbsp;技术支持：5613877&nbsp;&nbsp;&nbsp;&nbsp;建议使用IE9及以上版本或Chrome浏览，系统不支持IE8以下浏览器！
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getPath(obj) {
+            if (obj) {
+
+                if (window.navigator.userAgent.indexOf("MSIE") >= 1) {
+                    obj.select();
+
+                    return document.selection.createRange().text;
+                }
+
+                else if (window.navigator.userAgent.indexOf("Firefox") >= 1) {
+                    if (obj.files) {
+
+                        return obj.files.item(0).getAsDataURL();
+                    }
+                    return obj.value;
+                }
+                return obj.value;
+            }
+        }
+        $.ajaxSetup({
+            statusCode: {
+                499: function () {
+                    toastr.error("登录超时，请重新登录！", "提示");
+                    setTimeout(function () {
+                        window.location.href = "/Home/Login";
+                    }, 1500);
+                }
+            }
+        });
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1);
+                if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+            }
+            return "";
+        }
+        function setCookie(cname, cvalue, exMinute) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exMinute  * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + "; " + expires;
+        }
+        function getJsonDate(jsonDate) {
+            var milliseconds = parseInt(jsonDate.replace(/\D/igm, ""));
+            var date = new Date(milliseconds);
+            return date.toLocaleString();
+        }
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-center-center",
+            "preventDuplicates": true,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+        
+        $(function () {
+            $("#btnLogOut").click(function () {
+                Ewin.confirm({ message: "确认要退出系统吗？" }).on(function (e) {
+                    if (!e) {
+                        return;
+                    }
+                    else {
+                        window.location.href = "/Home/LoginOut";
+                    }
+                });
+            });
+
+            var userName = decodeURIComponent(getCookie("cUserName"));
+            $("#lblUserName").text("欢迎："+userName);
+        });
+    </script>
+</body>
+</html>

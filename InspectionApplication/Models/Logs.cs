@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace InspectionApplicationDomain.Entities
+namespace InspectionApplication.Models
 {
     [Table("Logs")]
     public class Logs
