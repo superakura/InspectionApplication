@@ -5,23 +5,35 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     <link href="~/Content/bootstrap.css" rel="stylesheet" />
-    @*<link href="~/Content/bootstrap.min.css" rel="stylesheet" />*@
     <link href="~/Content/toastr.min.css" rel="stylesheet" />
+    <link href="~/Content/myLayout.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
-    <link href="~/Content/docs.min.css" rel="stylesheet" />
     <!--[if lt IE 9]>
         <script src="~/Scripts/html5shiv.js"></script>
         <script src="~/Scripts/respond.min.js"></script>
     <![endif]-->
-    <link href="~/Content/myLayout.css" rel="stylesheet" />
+    <style>
+        .error {
+            color: red;
+        }
+        .toast-center-center {
+        top: 50%;
+        left: 50%;
+        margin-top: -25px;
+        margin-left: -150px;
+    }
+    </style>
 </head>
 <body>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.messages_cn.js"></script>
     <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
     <script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
     <script src="~/Scripts/Ewin.js"></script>
     <script src="~/Scripts/toastr.min.js"></script>
+    <span id="top"></span>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">

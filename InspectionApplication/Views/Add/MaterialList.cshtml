@@ -1,0 +1,341 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+<style>
+    h3 {
+        margin-top: 20px;
+    }
+
+    .panel-body {
+        padding-top: 0px;
+    }
+
+    @@media (width: 1920px) {
+        .affix {
+            width: 447px;
+        }
+    }
+
+    @@media (width: 1280px) {
+        .affix {
+            width: 287px;
+        }
+    }
+
+    @@media (width: 1366px) {
+        .affix {
+            width: 308.5px;
+        }
+    }
+</style>
+<script src="~/Scripts/angular.min.js"></script>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModal-label">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addModal-label">提交报检单</h4>
+            </div>
+            <form class="form" id="formInfo" role="form">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="tbxProductName">产品名称（化学名称）</label>
+                                <input type="text" class="form-control" name="tbxProductName" id="tbxProductName" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tbxProductDealer">经销商</label>
+                                <input type="text" class="form-control" name="tbxProductDealer" id="tbxProductDealer" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tbxProductPackingType">包装规格</label>
+                                <input type="text" class="form-control" name="tbxProductPackingType" id="tbxProductPackingType" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label>到货日期</label>
+                                <input type="text" class="form-control" readonly name="tbxArrivalDate" id="tbxArrivalDate" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="tbxProductFactory">生产厂家</label>
+                                <input type="text" class="form-control" name="tbxProductFactory" id="tbxProductFactory" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tbxProductType">产品批号、型号</label>
+                                <input type="text" class="form-control" name="tbxProductType" id="tbxProductType" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tbxProductCount">到货数量</label>
+                                <input type="text" class="form-control" name="tbxProductCount" id="tbxProductCount" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label>报检日期</label>
+                                <input type="text" class="form-control" readonly name="tbxInspectionDate" id="tbxInspectionDate" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>分厂</label>
+                                    <select id="ddlFatherDept" class="form-control"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>车间</label>
+                                    <select id="ddlChildDept" class="form-control"></select>
+                                </div>
+                                <button id="btnAddUseDept" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-plus"></span> 添加使用单位
+                                </button>
+                            </div>
+                            <ul style="list-style-type:decimal;padding-top:10px;" id="listUseDept"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <span class="glyphicon glyphicon-remove"></span> 关闭
+                    </button>
+                    <button type="button" id="btnInspectionSubmit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-ok"></span> 提交
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" ng-app>
+    <div class="col-md-3 col-lg-3">
+        <div class="form hidden-xs hidden-print hidden-sm" data-spy="affix" data-offset-top="60" data-offset-bottom="200">
+            <div class="form-group">
+                <label for="btnName">物料名称</label>
+                <input type="text" class="form-control" ng-model="query_name" id="btnName" placeholder="输入物料名称">
+            </div>
+            <div class="form-group">
+                <label>执行标准</label>
+                <select class="form-control" ng-model="query_std">
+                    <option value="">全部</option>
+                    <option value="国家标准">国家标准</option>
+                    <option value="行业标准">行业标准</option>
+                    <option value="企业标准">企业标准</option>
+                    <option value="无">技术协议</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>物料类型</label>
+                <select class="form-control" ng-model="query_type" id="MaterialType">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>使用单位</label>
+                <select class="form-control" ng-model="query_dept" id="DeptName">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-success" id="btnNewMaterialAdd">新物料报检</button>
+            <a class="btn btn-info pull-right" data-toggle="tooltip" data-placement="left" title="返回顶部" href="#top">
+               <span class="glyphicon glyphicon-arrow-up"></span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-9 col-lg-9">
+        <div ng-controller="MaterialInfo">
+            <div class="panel panel-info" ng-repeat="Material in Materials | filter:query_name | filter:query_std | filter:query_type | filter:query_dept">
+                <div class="panel-body">
+                    <h3><span class="label label-default">{{$index+1}}</span> {{Material.Material_Name}} </h3>
+                </div>
+                <div class="panel-footer form-inline">
+                    <div class="form-group">
+                        <label>执行标准：{{Material.ExecutionStandard_Name}}</label>
+                    </div>
+                    <a href='javascript:void(0)' class="btn btn-primary btn-sm btnInspectionAdd" id="{{Material.Material_ID}}" data-name="{{Material.Material_Name}}">报检</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function MaterialInfo($scope, $http) {
+        $http.get('/Add/GetMaterialInfo').success(function (data) {
+            $scope.Materials = data;
+        });
+    }
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        //获取生产辅料的类型
+        $.ajax({
+            url: "/Add/GetMaterialType",
+            cache: false,
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    $("#MaterialType").append("<option value='" + item.MaterialType_Name + "&'>" + item.MaterialType_Name + "</option>");
+                });
+            }
+        });
+        //获取生产辅料的二级单位信息
+        $.ajax({
+            url: "/Add/GetMaterialDept",
+            cache: false,
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    $("#DeptName").append("<option value='" + item.Dept_Name + "'>" + item.Dept_Name + "</option>");
+                });
+            }
+        });
+
+        function clearInfo() {
+            $(".modal-body :text").val("");
+            $("#listUseDept").empty();
+            $("label.error").hide();
+            $(".error").removeClass("error");
+        }
+        
+        //新物料报检
+        $("#btnNewMaterialAdd").click(function () {
+            $("#addModal").modal("show");
+            clearInfo();
+        });
+
+        $("#tbxArrivalDate,#tbxInspectionDate").datetimepicker({
+            language: 'zh-CN',
+            weekStart: 1,
+            todayBtn: 1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0,
+            format: 'yyyy-mm-dd'
+        });
+
+        $.post("/Dept/GetFatherDept", "", function (result) {
+            $("#ddlFatherDept").empty();
+            $.each(result, function (indexInArray, valueOfElement) {
+                $("#ddlFatherDept").append("<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>");
+            });
+            GetChildDept($("#ddlFatherDept:eq(0)").val());
+        });
+
+        $("#ddlFatherDept").change(function () {
+            var deptID = $(this).val();
+            GetChildDept(deptID);
+        });
+
+        function GetChildDept(deptFatherID) {
+            var args = { "deptFatherID": deptFatherID };
+            $.post("/Dept/GetChildDept", encodeURIComponent(JSON.stringify(args)), function (result) {
+                $("#ddlChildDept").empty();
+                $.each(result, function (indexInArray, valueOfElement) {
+                    $("#ddlChildDept").append("<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>");
+                });
+            });
+        }
+
+        //已有物料报检
+        $(document).on("click", ".btnInspectionAdd", function () {
+            var materialName = $(this).attr("data-name");
+            $("#addModal").modal("show");
+            clearInfo();
+            $("#tbxProductName").val(materialName);
+        });
+
+        //添加物料使用单位
+        $("#btnAddUseDept").click(function () {
+            var deptFatherID = $("#ddlFatherDept").val();
+            var deptFatherName = $("#ddlFatherDept").find("option:selected").text();
+            var deptChildID = $("#ddlChildDept").val();
+            var deptChildName = $("#ddlChildDept").find("option:selected").text();
+
+            var deptInfo = "<li style='padding-top:10px;'><button class='btnDelDept btn btn-danger btn-sm' id='" + deptChildID + "' data-deptFatherID='"+deptFatherID+"'>删除</button> | ";
+            //deptInfo += "分厂：" + deptFatherName + " | 车间：" + deptChildName + "</li>";
+            deptInfo += deptFatherName + "：" + deptChildName + "</li>";
+
+            $("#listUseDept").append(deptInfo);
+        });
+
+        //删除物料使用单位
+        $(document).on("click", ".btnDelDept", function () {
+            $(this).parent().remove();
+        });
+
+        //对申请表单进行前端验证
+        var valid = $("#formInfo").validate({
+            rules: {
+                tbxProductName: { required: true, maxlength: 50 },
+                tbxProductDealer: { required: true, maxlength: 50 },
+                tbxProductPackingType: { required: true, maxlength: 50 },
+                tbxArrivalDate: { required: true, maxlength: 50 },
+                tbxProductFactory: { required: true, maxlength: 50 },
+                tbxProductType: { required: true, maxlength: 50 },
+                tbxProductCount: { required: true, maxlength: 50 },
+                tbxInspectionDate: { required: true, maxlength: 50 }
+            }
+        });
+
+        //提交报检单
+        $("#btnInspectionSubmit").click(function () {
+            if (valid.form()) {
+                //循环遍历btnDelDept类的button，取得使用单位ID，加入到deptList数组中
+                var deptList = {};
+                $(".btnDelDept").each(function (index) {
+                    var dept = { "deptChildID": $(this).attr("id"), "deptFatherID": $(this).attr("data-deptFatherID") };
+                    deptList[index] = dept;
+                });
+                //根据deptList的length判断至少选择一个使用单位
+                if (deptList.length == 0) {
+                    toastr.error("至少添加一个使用部门", "提示");
+                }
+                else
+                {
+                    Ewin.confirm({ message: "确认要提交吗？" }).on(function (e) {
+                        if (!e) {
+                            return;
+                        }
+                        else {
+                            var productName = $("#tbxProductName").val();
+                            var productDealer = $("#tbxProductDealer").val();
+                            var productPackingType = $("#tbxProductPackingType").val();
+                            var arrivalDate = $("#tbxArrivalDate").val();
+                            var productFactory = $("#tbxProductFactory").val();
+                            var productType = $("#tbxProductType").val();
+                            var productCount = $("#tbxProductCount").val();
+                            var inspectionDate = $("#tbxInspectionDate").val();
+
+                            var args = {
+                                "productName": productName,
+                                "productDealer": productDealer,
+                                "productPackingType": productPackingType,
+                                "arrivalDate": arrivalDate,
+                                "productFactory": productFactory,
+                                "productType": productType,
+                                "productCount": productCount,
+                                "inspectionDate": inspectionDate,
+                                "deptList": deptList
+                            };
+                            $.post("/Add/Submit", encodeURIComponent(JSON.stringify(args)), function (result) {
+                                if (result == "ok") {
+                                    $("#addModal").modal("hide");
+                                    toastr.success("提交成功,等待质检人员接收报检单！", "提示");
+                                    clearInfo();
+                                }
+                                else {
+                                    $("#addModal").modal("hide");
+                                    toastr.error("保存错误，请联系5613877！", "提示");
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+
+

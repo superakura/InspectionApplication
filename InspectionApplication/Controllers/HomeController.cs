@@ -11,7 +11,8 @@ namespace InspectionApplication.Controllers
 {
     public class HomeController : Controller
     {
-        private Models.dbContext db = new Models.dbContext();
+        private Models.DbContext db = new Models.DbContext();
+
         public ActionResult Login()
         {
             return View();
@@ -79,7 +80,26 @@ namespace InspectionApplication.Controllers
                             System.Web.HttpCookie userNameCookie = new System.Web.HttpCookie("cUserName", cUserName);
                             System.Web.HttpContext.Current.Response.Cookies.Add(userNameCookie);
 
-                            return Redirect(returnUrl ?? Url.Action("Index", "Home"));
+                            var action = string.Empty;
+                            var controller = string.Empty;
+
+                            switch (userInfo.UserRole)
+                            {
+                                case "报检单申请":
+                                    action = "MaterialList";
+                                    controller = "Add";
+                                    break;
+                                case "报检单审批":
+                                    action = "IndexList";
+                                    controller = "Check";
+                                    break;
+                                case "系统管理员":
+                                    action = "IndexList";
+                                    controller = "Check";
+                                    break;
+                            }
+
+                            return Redirect(returnUrl ?? Url.Action(action, controller));
                             #endregion
                         }
                         else
@@ -102,22 +122,6 @@ namespace InspectionApplication.Controllers
             }
         }
 
-        public ViewResult Index()
-        {
-            return View();
-        }
-
-        public ViewResult Test()
-        {
-            return View();
-        }
-
-        public ViewResult Test2()
-        {
-            return View();
-        }
-
-
         public ActionResult LoginOut()
         {
             FormsAuthentication.SignOut();
@@ -133,17 +137,17 @@ namespace InspectionApplication.Controllers
                 case "报检单申请":
                     userMenu.Add(new Models.ViewMenu
                     {
-                        MenuName = "首页",
-                        MenuIcon = "glyphicon glyphicon-home",
-                        MenuController = "Home",
-                        MenuAction = "Index"
+                        MenuName = "添加报检单",
+                        MenuIcon = "glyphicon glyphicon-plus",
+                        MenuController = "Add",
+                        MenuAction = "MaterialList"
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
                         MenuName = "我的报检单",
                         MenuIcon = "glyphicon glyphicon-list-alt",
-                        MenuController = "Home",
-                        MenuAction = "Test"
+                        MenuController = "Add",
+                        MenuAction = "ListAdded"
                     });
                     break;
                 case "报检单审批":
@@ -151,15 +155,15 @@ namespace InspectionApplication.Controllers
                     {
                         MenuName = "报检单审批",
                         MenuIcon = "glyphicon glyphicon-check",
-                        MenuController = "Home",
-                        MenuAction = "Index"
+                        MenuController = "Check",
+                        MenuAction = "IndexList"
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
                         MenuName = "报检单统计",
                         MenuIcon = "glyphicon glyphicon-list-alt",
-                        MenuController = "Home",
-                        MenuAction = "Test2"
+                        MenuController = "Check",
+                        MenuAction = "IndexStatistic"
                     });
                     break;
                 case "系统管理员":
@@ -167,21 +171,21 @@ namespace InspectionApplication.Controllers
                     {
                         MenuName = "报检单审批",
                         MenuIcon = "glyphicon glyphicon-check",
-                        MenuController = "Home",
-                        MenuAction = "Index"
+                        MenuController = "Check",
+                        MenuAction = "IndexList"
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
                         MenuName = "报检单统计",
                         MenuIcon = "glyphicon glyphicon-list-alt",
-                        MenuController = "Home",
-                        MenuAction = "Test2"
+                        MenuController = "Check",
+                        MenuAction = "IndexStatistic"
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
                         MenuName = "用户管理",
                         MenuIcon = "glyphicon glyphicon-user",
-                        MenuController = "UserInfo",
+                        MenuController = "User",
                         MenuAction = "List"
                     });
                     break;

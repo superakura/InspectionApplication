@@ -56,6 +56,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -119,6 +123,7 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Scripts\angular.min.js" />
     <Content Include="Scripts\Ewin.js" />
     <Content Include="Scripts\html5shiv.js" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
@@ -131,6 +136,7 @@
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.messages_cn.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
@@ -142,7 +148,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Commen\DB2.cs" />
+    <Compile Include="Controllers\AddController.cs" />
+    <Compile Include="Controllers\CheckController.cs" />
+    <Compile Include="Controllers\DeptController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -150,11 +161,30 @@
     <Compile Include="Migrations\201710310135297_edit.Designer.cs">
       <DependentUpon>201710310135297_edit.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201711070535428_edit1.cs" />
+    <Compile Include="Migrations\201711070535428_edit1.Designer.cs">
+      <DependentUpon>201711070535428_edit1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711070614220_edit2.cs" />
+    <Compile Include="Migrations\201711070614220_edit2.Designer.cs">
+      <DependentUpon>201711070614220_edit2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711070659416_edit3.cs" />
+    <Compile Include="Migrations\201711070659416_edit3.Designer.cs">
+      <DependentUpon>201711070659416_edit3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711070726119_edit4.cs" />
+    <Compile Include="Migrations\201711070726119_edit4.Designer.cs">
+      <DependentUpon>201711070726119_edit4.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\dbContext.cs" />
+    <Compile Include="Models\DbContext.cs" />
+    <Compile Include="Models\MaterialDept.cs" />
     <Compile Include="Models\DeptInfo.cs" />
     <Compile Include="Models\InspectionApplications.cs" />
     <Compile Include="Models\Logs.cs" />
+    <Compile Include="Models\Material.cs" />
+    <Compile Include="Models\Material_Type.cs" />
     <Compile Include="Models\ViewMenu.cs" />
     <Compile Include="Models\ProductUseDept.cs" />
     <Compile Include="Models\UserInfo.cs" />
@@ -165,10 +195,13 @@
     <Content Include="packages.config" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Menu.cshtml" />
-    <Content Include="Views\Home\Test.cshtml" />
-    <Content Include="Views\Home\Test2.cshtml" />
+    <Content Include="Views\Add\MaterialList.cshtml" />
+    <Content Include="Views\Add\ListAdded.cshtml" />
+    <Content Include="Views\Check\IndexList.cshtml" />
+    <Content Include="Views\Check\IndexStatistic.cshtml" />
+    <Content Include="Views\User\List.cshtml" />
+    <Content Include="Views\Add\MaterialListTest.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -178,11 +211,23 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Commen\" />
+    <Folder Include="Views\Dept\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201710310135297_edit.resx">
       <DependentUpon>201710310135297_edit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711070535428_edit1.resx">
+      <DependentUpon>201711070535428_edit1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711070614220_edit2.resx">
+      <DependentUpon>201711070614220_edit2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711070659416_edit3.resx">
+      <DependentUpon>201711070659416_edit3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711070726119_edit4.resx">
+      <DependentUpon>201711070726119_edit4.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

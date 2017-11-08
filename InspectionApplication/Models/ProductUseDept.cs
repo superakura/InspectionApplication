@@ -15,6 +15,9 @@ namespace InspectionApplication.Models
         public int ProductUseDeptInfoID { get; set; }
 
         [Required]
+        public int ProductUseFatherDeptID { get; set; }//部门FatherID
+
+        [Required]
         public int ProductUseDeptID { get; set; }//部门ID
 
         [Required]

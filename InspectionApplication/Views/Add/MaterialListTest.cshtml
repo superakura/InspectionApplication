@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewBag.Title = "MaterialList";
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+<style>
+    h3 {
+        margin-top: 20px;
+    }
+
+    .panel-body {
+        padding-top: 0px;
+    }
+</style>
+<script src="~/Scripts/angular.min.js"></script>
+<script>
+    function MaterialInfo($scope, $http) {
+        $http.get('/Add/GetMaterialInfo').success(function (data) {
+            $scope.Materials = data;
+        });
+    }
+</script>
+<br />
+<div class="row" ng-app>
+    <div class="col-md-3">
+        <ul data-spy="affix" data-offset-top="60" data-offset-bottom="200">
+            <li>
+                <div class="col-md-12">
+                    <input type="text" class="form-control" ng-model="query_name" placeholder="输入物料名称">
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-9">
+        <div ng-controller="MaterialInfo">
+            <div class="panel panel-primary" ng-repeat="Material in Materials | filter:query_name | filter:query_std | filter:query_type | filter:query_dept">
+                <div class="panel-body">
+                    <h3><span class="label label-default">{{$index+1}}</span> {{Material.Material_Name}} </h3>
+                </div>
+                <div class="panel-footer form-inline">
+                    <div class="form-group">
+                        <label>执行标准：{{Material.ExecutionStandard_Name}}</label>
+                    </div>
+                    <a class="btn btn-primary btn-sm">报检</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

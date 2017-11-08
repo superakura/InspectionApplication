@@ -14,9 +14,7 @@ namespace InspectionApplication.Models
         [Key]
         public int InspectionApplicationID { get; set; }
 
-        [Required]
         [StringLength(100)]
-        [Index(IsUnique =true)]
         public string InspectionApplicationNum { get; set; }//报检单编号
 
         [Required]
@@ -50,28 +48,33 @@ namespace InspectionApplication.Models
         public DateTime InspectionDate { get; set; }//报检日期时间，数据来源--用户提交报检单的系统时间
 
         [StringLength(100)]
-        public string InspectionDeptName { get; set; }//报检单位名称
-
-        public int InspectionDeptID { get; set; }//报检单位ID
-
-        [StringLength(100)]
-        public string InspectionPersonName { get; set; }//报检单位负责人姓名
-
-        public int InspectionPersonID { get; set; }//报检单位负责人ID
+        public string InspectionDeptName { get; set; }//报检单位名称,根据登录用户取值
 
         [Required]
+        public int InspectionDeptID { get; set; }//报检单位ID,根据登录用户取值
+
+        [StringLength(100)]
+        public string InspectionPersonName { get; set; }//报检单位负责人姓名,根据登录用户取值
+
+        [Required]
+        public int InspectionPersonID { get; set; }//报检单位负责人ID,根据登录用户取值
+
         [StringLength(20)]
         public string DisposePersonName { get; set; }//质检处理报检单人员姓名
 
         public int DisposePersonID { get; set; }//质检处理报检单人员ID
 
-        public DateTime DisposeDate { get; set; }//质检处理报检单日期
-
-        [Required]
-        [StringLength(20)]
-        public string InspectionApplicationState { get; set; }//报检单状态
+        public DateTime? DisposeDate { get; set; }//质检处理报检单日期
 
         [StringLength(200)]
         public string DisposeRemark { get; set; }//质检报检单处理意见
+
+        //报检单状态
+        //1、待审核
+        //2、审核通过
+        //3、审核回退
+        [Required]
+        [StringLength(20)]
+        public string InspectionApplicationState { get; set; }
     }
 }

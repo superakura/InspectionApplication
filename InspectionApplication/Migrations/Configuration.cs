@@ -5,14 +5,14 @@ namespace InspectionApplication.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<InspectionApplication.Models.dbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<InspectionApplication.Models.DbContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(InspectionApplication.Models.dbContext context)
+        protected override void Seed(InspectionApplication.Models.DbContext context)
         {
             //  This method will be called after migrating to the latest version.
 
