@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -23,6 +24,60 @@ namespace InspectionApplication.Controllers
             return View();
         }
 
+        //获取我的报检单信息
+        public JsonResult GetInspectionList()
+        {
+            try
+            {
+                var userInfo = Session["user"] as Models.UserInfo;
+
+                var postList =
+       JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var curPage = 0;
+                int.TryParse(postList["curPage"].ToString(), out curPage);
+
+                var pageSize = 0;
+                int.TryParse(postList["pageSize"].ToString(), out pageSize);
+
+                var productName = postList["productName"].ToString();//产品名称
+                var productType = postList["productType"].ToString();//产品型号
+                var inspectionDate = postList["inspectionDate"].ToString();//报检时间
+                var inspectionState = postList["inspectionState"].ToString();//报检单状态
+
+                var result = from i in db.InspectionApplications
+                             where i.InspectionPersonID == userInfo.UserID
+                             select i;
+
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    result = result.Where(w => w.ProductName.Contains(productName));
+                }
+                if (!string.IsNullOrEmpty(productType))
+                {
+                    result = result.Where(w => w.ProductType.Contains(productType));
+                }
+                if (!string.IsNullOrEmpty(inspectionState))
+                {
+                    result = result.Where(w => w.InspectionApplicationState== inspectionState);
+                }
+                if (!string.IsNullOrEmpty(inspectionDate))
+                {
+                    result = result.Where(w => SqlFunctions.DateDiff("day", w.InspectionDate, inspectionDate) == 0);
+                }
+
+                Dictionary<string, object> infoList = new Dictionary<string, object>();
+                infoList.Add("count", result.Count());
+                infoList.Add("infoList", result.OrderByDescending(o => o.InspectionDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
+                return Json(infoList);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message);
+            }
+        }
+
+        //获取生产辅料的全部信息
         public JsonResult GetMaterialInfo()
         {
             string sql = @"select  Material_Name,ExecutionStandard_Name,Material_ID,ExecutionStandard_Type,
@@ -52,6 +107,7 @@ from [View_MaterialInfo] order by Material_Type";
             return Json(list_mt, JsonRequestBehavior.AllowGet);
         }
 
+        //获取生产辅料的类型
         public JsonResult GetMaterialType()
         {
             string sql = "select * from Material_Type order by MaterialTypeOrder";
@@ -67,6 +123,7 @@ from [View_MaterialInfo] order by Material_Type";
             return Json(list_mt, JsonRequestBehavior.AllowGet);
         }
 
+        //获取生产辅料的使用部门
         public JsonResult GetMaterialDept()
         {
             string sql = @"select Dept_Name from Dept_Info 
@@ -82,6 +139,7 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             return Json(list_mt, JsonRequestBehavior.AllowGet);
         }
 
+        //提交报检单
         public string Submit()
         {
             try
@@ -145,9 +203,52 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             }
         }
 
+        //删除质检回退的报检单
         public string Del()
         {
-            return "";
+            try
+            {
+                var infoList =
+   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var id = 0;
+                int.TryParse(infoList["id"].ToString(), out id);
+
+                var inspectionApplicationInfo = db.InspectionApplications.Find(id);
+
+                if (inspectionApplicationInfo.InspectionApplicationState== "审核回退")
+                {
+                    IEnumerable<Models.ProductUseDept> delDeptList = db.ProductUseDept
+                    .Where(w => w.InspectionApplicationID == id)
+                    .ToList();
+                    db.ProductUseDept.RemoveRange(delDeptList);
+                    db.InspectionApplications.Remove(inspectionApplicationInfo);
+                    db.SaveChanges();
+                    return "ok";
+                }
+                else
+                {
+                    return "noBack";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        //获取报检单详细信息
+        public JsonResult GetInspectionDetail()
+        {
+            try
+            {
+                var result = "";
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
     }
 }
