@@ -13,11 +13,13 @@ namespace InspectionApplication.Controllers
     {
         private Models.DbContext db = new Models.DbContext();
 
+        [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult Login(string userID, string pwd, string returnUrl)
         {

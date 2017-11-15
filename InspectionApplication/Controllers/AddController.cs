@@ -168,8 +168,14 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
 
                 inspectionApplications.InspectionPersonID = personInfo.UserID;
                 inspectionApplications.InspectionPersonName = personInfo.UserName;
+
+                var deptInfo = db.DeptInfo.Find(personInfo.UserDeptID);
+                var deptFatherInfo = db.DeptInfo.Find(deptInfo.DeptFatherID);
                 inspectionApplications.InspectionDeptID = personInfo.UserDeptID;
-                inspectionApplications.InspectionDeptName =db.DeptInfo.Find(personInfo.UserDeptID).DeptName;
+                inspectionApplications.InspectionDeptName =deptInfo.DeptName;
+                inspectionApplications.InspectionFartherDeptID = deptFatherInfo.DeptID;
+                inspectionApplications.InspectionFatherDeptName = deptFatherInfo.DeptName;
+
                 inspectionApplications.InspectionDate = DateTime.Now;
 
                 inspectionApplications.InspectionApplicationState = "待审核";
@@ -242,8 +248,29 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
         {
             try
             {
-                var result = "";
-                return Json(result);
+                var postList =
+   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var id = 0;
+                int.TryParse(postList["id"].ToString(), out id);
+                var inspectionInfo = db.InspectionApplications.Find(id);
+
+                var inspectionDeptList = from d in db.ProductUseDept
+                                         join p in db.DeptInfo on d.ProductUseFatherDeptID equals p.DeptID
+                                         join c in db.DeptInfo on d.ProductUseDeptID equals c.DeptID
+                                         where d.InspectionApplicationID == id
+                                         select new
+                                         {
+                                             d.ProductUseDeptInfoID,
+                                             d.ProductUseFatherDeptID,
+                                             d.ProductUseDeptID,
+                                             fatherName =p.DeptName,
+                                             childName=c.DeptName
+                                         };
+                Dictionary<string, object> infoList = new Dictionary<string, object>();
+                infoList.Add("inspectionInfo", inspectionInfo);
+                infoList.Add("inspectionDeptList", inspectionDeptList);
+                return Json(infoList);
             }
             catch (Exception ex)
             {

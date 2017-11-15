@@ -45,13 +45,18 @@ namespace InspectionApplication.Models
         public DateTime ArrivalDate { get; set; }//到货日期--用户填写
 
         [Required]
-        public DateTime InspectionDate { get; set; }//报检日期时间，数据来源--用户提交报检单的系统时间
+        public DateTime InspectionDate { get; set; }//报检日期时间，数据来源--用户提交报检单的系统时间，用户选择，待定
 
         [StringLength(100)]
         public string InspectionDeptName { get; set; }//报检单位名称,根据登录用户取值
 
         [Required]
         public int InspectionDeptID { get; set; }//报检单位ID,根据登录用户取值
+
+        [StringLength(100)]
+        public string InspectionFatherDeptName { get; set; }//报检单位父级名称
+
+        public int InspectionFartherDeptID { get; set; }//报检单位父级ID
 
         [StringLength(100)]
         public string InspectionPersonName { get; set; }//报检单位负责人姓名,根据登录用户取值

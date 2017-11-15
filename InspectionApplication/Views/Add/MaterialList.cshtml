@@ -16,6 +16,11 @@
             width: 447px;
         }
     }
+    @@media (width: 1440px) {
+        .affix {
+            width: 325.75px;
+        }
+    }
 
     @@media (width: 1280px) {
         .affix {
@@ -203,6 +208,7 @@
             clearInfo();
         });
 
+        //日期控件初始化
         $("#tbxArrivalDate,#tbxInspectionDate").datetimepicker({
             language: 'zh-CN',
             weekStart: 1,
@@ -215,6 +221,7 @@
             format: 'yyyy-mm-dd'
         });
 
+        //获取二级单位信息
         $.post("/Dept/GetFatherDept", "", function (result) {
             $("#ddlFatherDept").empty();
             $.each(result, function (indexInArray, valueOfElement) {
@@ -228,6 +235,7 @@
             GetChildDept(deptID);
         });
 
+        //获取三级单位信息
         function GetChildDept(deptFatherID) {
             var args = { "deptFatherID": deptFatherID };
             $.post("/Dept/GetChildDept", encodeURIComponent(JSON.stringify(args)), function (result) {

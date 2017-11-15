@@ -178,6 +178,10 @@
     <Compile Include="Migrations\201711070726119_edit4.Designer.cs">
       <DependentUpon>201711070726119_edit4.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201711150146548_edit5.cs" />
+    <Compile Include="Migrations\201711150146548_edit5.Designer.cs">
+      <DependentUpon>201711150146548_edit5.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\MaterialDept.cs" />
@@ -228,6 +232,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201711070726119_edit4.resx">
       <DependentUpon>201711070726119_edit4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711150146548_edit5.resx">
+      <DependentUpon>201711150146548_edit5.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
