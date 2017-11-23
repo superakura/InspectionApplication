@@ -13,12 +13,14 @@ namespace InspectionApplication.Controllers
     {
         private Models.DbContext db = new Models.DbContext();
 
+        //登录页面
         [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
         }
 
+        //用户登录、加载用户权限
         [AllowAnonymous]
         [HttpPost]
         public ActionResult Login(string userID, string pwd, string returnUrl)
@@ -124,12 +126,14 @@ namespace InspectionApplication.Controllers
             }
         }
 
+        //注销
         public ActionResult LoginOut()
         {
             FormsAuthentication.SignOut();
             return Redirect("/Home/Login");
         }
 
+        //加载菜单
         public PartialViewResult Menu()
         {
             var userInfo = Session["user"] as Models.UserInfo;
@@ -193,6 +197,17 @@ namespace InspectionApplication.Controllers
                     break;
             }
             return PartialView(userMenu);
+        }
+
+        //加载二级单位
+        public JsonResult GetFatherDept()
+        {
+            var list = db.DeptInfo
+                .Where(w => w.DeptFatherID == 1)
+                .OrderBy(o=>o.DeptOrder)
+                .Select(s=>new {s.DeptID,s.DeptName})
+                .ToList();
+            return Json(list);
         }
     }
 }

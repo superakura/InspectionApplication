@@ -1,8 +1,450 @@
 ﻿
 @{
-    ViewBag.Title = "IndexList";
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
+<div class="modal fade" id="noCheckModal" tabindex="-1" role="dialog" aria-labelledby="noCheckModal-label">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="noCheckModal-label">待处理报检单</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form role="form">
+                            <div class="form-group">
+                                <label class="control-label" for="tbxInspectionNum">报检单编号</label>
+                                <input id="tbxInspectionNum" name="tbxInspectionNum" class="form-control" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="tbxInspectionRemark">报检单备注</label>
+                                <textarea id="tbxInspectionRemark" name="tbxInspectionRemark" class="form-control" rows="4" cols="20"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4 id="lblProductName"></h4>
+                        <h4 id="lblProductDealer"></h4>
+                        <h4 id="lblProductPackingType"></h4>
+                        <h4 id="lblArrivalDate"></h4>
+                        <h4 class="text-primary" id="lblState"></h4>
+                    </div>
+                    <div class="col-lg-6">
+                        <h4 id="lblProductFactory"></h4>
+                        <h4 id="lblProductType"></h4>
+                        <h4 id="lblProductCount"></h4>
+                        <h4 id="lblInspectionDate"></h4>
+                        <h4 id="lblInspectionPersonName"></h4>
+                        <h4 id="lblInspectionDept"></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <h4>使用单位</h4>
+                    <ul style="list-style-type:decimal" id="productDeptList"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="hidden" id="noCheckInspectionID"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-danger" id="btnRefuse"><span class="glyphicon glyphicon-remove"></span> 回退</button>
+                <button type="button" class="btn btn-primary" id="btnAccess"><span class="glyphicon glyphicon-ok"></span> 接收</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <h3>待处理报检单<span class="label label-default" id="noCheckCount">0</span></h3>
+        <ul id="listInspectionSubmit" class="list-unstyled"></ul>
+    </div>
+    <div class="col-lg-8">
+        <h3>已处理报检单</h3>
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="tbxInspectionNum">编号</label>
+                <input type="text" class="form-control" id="tbxInspectionNum">
+            </div>
+            <div class="form-group">
+                <label for="tbxProductName">产品名称</label>
+                <input type="text" class="form-control" id="tbxProductName">
+            </div>
+            <div class="form-group">
+                <label for="tbxInspectionDate">报检日期</label>
+                <input type="text" readonly class="form-control" id="tbxInspectionDate">
+            </div>
+            <div class="form-group">
+                <label for="ddlInspectionDept">报检单位</label>
+                <select class="form-control" id="ddlInspectionDept">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
+            <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+        </div>
+        <br />
+        <ul id="listInspectionCheck" class="list-unstyled"></ul>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="form-inline">
+                    <div class="form-group">
+                        共<span id="totalPageCount"></span>页 |
+                        <span id="totalDataCount"></span>条数据
+                        每页<select id="ddlPageSize" class="form-control">
+                            <option value="5">5</option>
+                            <option selected value="3">3</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                        </select>项
+                    </div>
+                    <div class="form-group">
+                        <ul id="pageList" style="padding-top:5px;"></ul>
+                    </div>
+                    <div class="input-group col-md-1 col-lg-1">
+                        <input id="tbxCurPage" value="1" maxlength="7" size="2" class="form-control text-center" type="text" placeholder="">
+                        <span class="input-group-btn">
+                            <button id="goPage" class="btn btn-primary" type="button">
+                                转到
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<h2>报检单审批</h2>
+<audio id="audio" controls="controls" class="hidden">
+    <source src="~/Content/oppo.mp3" type="audio/mpeg" />
+</audio>
+<script>
+    $(function () {
+        //初始化日期控件
+        $("#tbxInspectionDate").datetimepicker({
+            language: 'zh-CN',
+            weekStart: 1,
+            todayBtn: 1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0,
+            format: 'yyyy-mm-dd'
+        });
 
+        LoadFatherDept();
+
+        function clearNoCheckInfo() {
+            $("#tbxInspectionNum,#tbxInspectionRemark").text();
+            $("label.error").hide();
+            $(".error").removeClass("error");
+        }
+
+        //首次加载待处理报检单
+        LoadInspectionSubmit();
+
+        //每30秒调用刷新一次待处理的报检单列表
+        setInterval(LoadInspectionSubmit, 1000 * 60);
+
+        //获取待处理报检单列表--函数
+        function LoadInspectionSubmit() {
+            $.post("/Check/GetNoCheckList", "", function (data, textStatus, jqXHR) {
+                $("#listInspectionSubmit").empty();
+                $.each(data, function (indexInArray, valueOfElement) {
+                    var temp = "<li>";
+                    var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
+                    temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></div>";
+                    temp += "<div class='panel-body'>";
+                    temp += "【报检：" + valueOfElement.InspectionFatherDeptName+" | ";
+                    temp += "" + valueOfElement.InspectionPersonName + " | " + inspectionDate + "】";
+                    temp += "【批号：" + valueOfElement.ProductBatchNum + "】 ";
+                    temp += "<button class='btn btn-success btn-sm btnDispose' data-id='" + valueOfElement.InspectionApplicationID + "'>处理</button>";
+                    temp += "</div></div></li>";
+                    $("#listInspectionSubmit").append(temp);
+                });
+                var infoLength = data.length;//最新数据的数量
+                var noCheckCount = $("#noCheckCount").text();//当前列表的数量
+
+                //首次加载，不播放提示音、更新当前信息数量
+                if (noCheckCount==0) {
+                    $("#noCheckCount").text(infoLength);
+                }
+                else
+                {
+                    $("#noCheckCount").text(infoLength);
+                    //如果最新数据的数量大于当前的信息数量，则播放提示音
+                    if (infoLength > noCheckCount) {
+                        var audio = document.getElementById("audio");
+                        audio.play();//开始播放
+                    }
+                }
+            });
+        }
+
+        //获取全部二级单位
+        function LoadFatherDept() {
+            $.post("/Home/GetFatherDept","", function (result) {
+                var temp = "<option value=''>全部</option>";
+                $.each(result, function (indexInArray, valueOfElement) {
+                    temp += "<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>";
+                });
+                $("#ddlInspectionDept").empty().append(temp);
+            });
+        }
+
+        //待审核列表--【处理】按钮
+        $(document).on("click", ".btnDispose", function () {
+            clearNoCheckInfo();
+            var infoID = $(this).attr("data-id");
+            var args = {
+                "id": infoID
+            };
+            $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
+                $('#noCheckModal').modal('show');
+                var inspectionDeptList = result["inspectionDeptList"];
+                var inspectionInfo = result["inspectionInfo"];
+
+                $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
+                $("#lblProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
+                $("#lblProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
+                $("#lblArrivalDate").text("到货日期：" + getJsonDate(inspectionInfo.ArrivalDate));
+                $("#lblState").text("报检单状态：" + inspectionInfo.InspectionApplicationState);
+
+                $("#lblProductFactory").text("生产厂家：" + inspectionInfo.ProductFactory);
+                $("#lblProductType").text("产品批号、型号：" + inspectionInfo.ProductType);
+                $("#lblProductCount").text("到货数量：" + inspectionInfo.ProductCount);
+                $("#lblInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
+                $("#lblInspectionPersonName").text("报检人：" + inspectionInfo.InspectionPersonName);
+                $("#lblInspectionDept").text("报检单位：" + inspectionInfo.InspectionFatherDeptName);
+
+                $("#noCheckInspectionID").text(inspectionInfo.InspectionApplicationID);
+
+                var deptLi = "";
+                $.each(inspectionDeptList, function (indexInArray, valueOfElement) {
+                    deptLi += "<li>" + valueOfElement.fatherName + "：" + valueOfElement.childName + "</li>";
+                });
+                $("#productDeptList").empty().append(deptLi);
+            });
+        });
+
+        //检查报检单编号是否重复
+        function CheckInspectionNum(num) {
+            var args = { "num": num};
+            $.post("/Check/CheckInspectionNum", encodeURIComponent(JSON.stringify(args)), function (result) {
+                console.log(result);
+                return result;
+            });
+        };
+
+        //【接收】按钮
+        $("#btnAccess").click(function () {
+            var inspectionNum = $("#tbxInspectionNum").val();
+            if (inspectionNum == "") {
+                toastr.error("报检单编号不能为空", "提示");
+            }
+            else {
+                Ewin.confirm({ message: "确认要接收此报检单吗？" }).on(function (e) {
+                    if (!e) {
+                        return;
+                    }
+                    else {
+                        var argsNum = { "num": inspectionNum };
+                        $.post("/Check/CheckInspectionNum", encodeURIComponent(JSON.stringify(argsNum)), function (isOk) {
+                            //检查报检单编号是否重复
+                            if (isOk == "ok") {
+                                var inspectionID = $("#noCheckInspectionID").text();
+                                var inspectionRemark = $("#tbxInspectionRemark").val();
+                                var args = { "id": inspectionID, "submitType": "access", "inspectionNum": inspectionNum, "inspectionRemark": inspectionRemark };
+                                $.post("/Check/InspectionCheck", encodeURIComponent(JSON.stringify(args)), function (result) {
+                                    if (result == "ok") {
+                                        toastr.success("接收报检单成功！", "提示");
+                                        $('#noCheckModal').modal('hide');
+                                        LoadInspectionSubmit();
+                                        getList(1, $("#ddlPageSize").val());
+                                    }
+                                    else {
+                                        toastr.error(result, "提示");
+                                    }
+                                });
+                            }
+                            else {
+                                if (isOk == "error") {
+                                    toastr.error("报检单编号不能重复！", "提示");
+                                }
+                                else {
+                                    toastr.error(isOk, "提示");
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        //【回退】按钮
+        $("#btnRefuse").click(function () {
+            var inspectionRemark = $("#tbxInspectionRemark").val();
+            if (inspectionRemark == "") {
+                toastr.error("请在备注中填写回退原因！", "提示");
+            }
+            else {
+                Ewin.confirm({ message: "确认要回退此报检单吗？" }).on(function (e) {
+                    if (!e) {
+                        return;
+                    }
+                    else {
+                        var inspectionID = $("#noCheckInspectionID").text();
+                        var inspectionRemark = $("#tbxInspectionRemark").val();
+                        var args = { "id": inspectionID, "submitType": "refuse", "inspectionNum": "", "inspectionRemark": inspectionRemark };
+                        $.post("/Check/InspectionCheck", encodeURIComponent(JSON.stringify(args)), function (result) {
+                            if (result == "ok") {
+                                toastr.success("回退报检单成功！", "提示");
+                                $('#noCheckModal').modal('hide');
+                                LoadInspectionSubmit();
+                                getList(1, $("#ddlPageSize").val());
+                            }
+                            else {
+                                toastr.error(result, "提示");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        //加载已处理的报检单
+        getList(1, $("#ddlPageSize").val());
+        function getList(curPage, pageSize) {
+            var productName = $("#tbxProductName").val();
+            var inspectionDate = $("#tbxInspectionDate").val();
+
+            var args = {
+                "curPage": curPage,
+                "pageSize": pageSize,
+                "productName": productName,
+                "inspectionDate": inspectionDate
+            };
+            $.post("/Check/GetCheckList", encodeURIComponent(JSON.stringify(args)), function (result) {
+                var listInfo = result["infoList"];//数据列表
+                var count = result["count"];//数据个数
+                if (listInfo.length != 0) {
+                    var totalPageCount;//总页数
+                    if (count % pageSize != 0) {
+                        totalPageCount = count / pageSize + 1;
+                    }
+                    else {
+                        totalPageCount = count / pageSize;
+                    }
+
+                    $("#totalPageCount").text(parseInt(totalPageCount));
+                    $("#totalDataCount").text(count);
+                    $.post("/Check/GetCheckList", "", function (data, textStatus, jqXHR) {
+                        var temp = "";
+                        $.each(listInfo, function (indexInArray, valueOfElement) {
+                            temp += "<li>";
+                            var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
+                            var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
+                            var disposeDate = getJsonDate(valueOfElement.DisposeDate);
+                            temp += "<div class='panel panel-default'><div class='panel-heading'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></div>";
+                            temp += "<div class='panel-body'>";
+                            temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
+                            //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
+                            //temp += "【经销商：" + valueOfElement.ProductDealer + "】";
+                            temp += "【批号、型号：" + valueOfElement.ProductType + "】";
+                            //temp += "【包装规格：" + valueOfElement.ProductPackingType + "】";
+                            //temp += "【到货数量：" + valueOfElement.ProductCount + "】";
+                            //temp += "【到货日期：" + arrivalDate + "】";
+                            //temp += " <br />";
+                            temp += "【报检：" + valueOfElement.InspectionFatherDeptName + " | " + valueOfElement.InspectionPersonName + " | " + inspectionDate + "】";
+                            temp += " 【接收：" + valueOfElement.DisposePersonName + " | " + disposeDate + "】";
+
+                            temp += "<button class='btn btn-info btn-sm btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'>详细信息</button>&nbsp;";
+                            temp += "<button class='btn btn-danger btn-sm btnEdit' data-id='" + valueOfElement.InspectionApplicationID + "'>修改编号</button>";
+                            temp += "</div></div></li>";
+
+                        });
+                        $("#listInspectionCheck").empty().append(temp);
+                    });
+                    
+                    var options = {
+                        numberOfPages: 6,
+                        bootstrapMajorVersion: 3,
+                        currentPage: curPage,
+                        totalPages: totalPageCount,
+                        useBootstrapTooltip: false,
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "尾页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        alignment: 'right',
+                        tooltipTitles: function (type, page, current) {
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            getList(page, pageSize);
+                            $("#tbxCurPage").val(page);
+                        }
+                    }
+                    $('#pageList').bootstrapPaginator(options);
+                }
+                else {
+                    $("#totalDataCount,#totalPageCount").text("0");
+                    var noData = "<h3>没有数据！</h3>";
+                    $("#tableList").empty().append(noData);
+                    $('#pageList').empty();
+                }
+            });
+        }
+        $("#ddlPageSize").change(function () {
+            $("#tbxCurPage").val("1");
+            getList(1, $("#ddlPageSize").val());
+        });
+        $("#goPage").click(function () {
+            if ($("#tbxCurPage").val() == "") {
+                toastr["warning"]("页码不能为空", "提示");
+            }
+            else {
+                var r = /^[0-9]*[1-9][0-9]*$/
+                if (r.test($("#tbxCurPage").val())) {
+                    var goPageNum = parseInt($("#tbxCurPage").val());
+                    var totalPage = parseInt($("#totalPageCount").html());
+                    if (goPageNum >= 1 && goPageNum <= totalPage) {
+                        getList(goPageNum, $("#ddlPageSize").val());
+                        $("#tbxCurPage").val(goPageNum);
+                    }
+                    else {
+                        toastr["warning"]("亲，页码超过范围！", "提示");
+                        $("#tbxCurPage").val("");
+                    }
+                }
+                else {
+                    toastr["warning"]("亲，只能填写数字！", "提示");
+                    $("#tbxCurPage").val("");
+                }
+            }
+        });
+
+        //查询按钮
+        $("#btnSearch").click(function () {
+            getList(1, $("#ddlPageSize").val());
+        });
+
+        //重置按钮
+        $("#btnRefresh").click(function () {
+            $("#tbxProductName").val("");
+            $("#tbxInspectionDate").val("");
+            getList(1, $("#ddlPageSize").val());
+        });
+    });
+</script>

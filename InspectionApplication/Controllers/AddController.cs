@@ -24,58 +24,6 @@ namespace InspectionApplication.Controllers
             return View();
         }
 
-        //获取我的报检单信息
-        public JsonResult GetInspectionList()
-        {
-            try
-            {
-                var userInfo = Session["user"] as Models.UserInfo;
-
-                var postList =
-       JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
-
-                var curPage = 0;
-                int.TryParse(postList["curPage"].ToString(), out curPage);
-
-                var pageSize = 0;
-                int.TryParse(postList["pageSize"].ToString(), out pageSize);
-
-                var productName = postList["productName"].ToString();//产品名称
-                var productType = postList["productType"].ToString();//产品型号
-                var inspectionDate = postList["inspectionDate"].ToString();//报检时间
-                var inspectionState = postList["inspectionState"].ToString();//报检单状态
-
-                var result = from i in db.InspectionApplications
-                             where i.InspectionPersonID == userInfo.UserID
-                             select i;
-
-                if (!string.IsNullOrEmpty(productName))
-                {
-                    result = result.Where(w => w.ProductName.Contains(productName));
-                }
-                if (!string.IsNullOrEmpty(productType))
-                {
-                    result = result.Where(w => w.ProductType.Contains(productType));
-                }
-                if (!string.IsNullOrEmpty(inspectionState))
-                {
-                    result = result.Where(w => w.InspectionApplicationState== inspectionState);
-                }
-                if (!string.IsNullOrEmpty(inspectionDate))
-                {
-                    result = result.Where(w => SqlFunctions.DateDiff("day", w.InspectionDate, inspectionDate) == 0);
-                }
-
-                Dictionary<string, object> infoList = new Dictionary<string, object>();
-                infoList.Add("count", result.Count());
-                infoList.Add("infoList", result.OrderByDescending(o => o.InspectionDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
-                return Json(infoList);
-            }
-            catch (Exception e)
-            {
-                return Json(e.Message);
-            }
-        }
 
         //获取生产辅料的全部信息
         public JsonResult GetMaterialInfo()
@@ -154,6 +102,8 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                 var arrivalDate =Convert.ToDateTime(postList["arrivalDate"].ToString());
                 var productFactory = postList["productFactory"].ToString();
                 var productType = postList["productType"].ToString();
+                var productBatchNum = postList["productBatchNum"].ToString();
+                var samplePlace= postList["samplePlace"].ToString();
                 var productCount = postList["productCount"].ToString();
                 var inspectionDate =Convert.ToDateTime(postList["inspectionDate"].ToString());
 
@@ -164,7 +114,9 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                 inspectionApplications.ArrivalDate = arrivalDate;
                 inspectionApplications.ProductFactory = productFactory;
                 inspectionApplications.ProductType = productType;
+                inspectionApplications.ProductBatchNum = productBatchNum;
                 inspectionApplications.ProductCount = productCount;
+                inspectionApplications.SamplePlace = samplePlace;
 
                 inspectionApplications.InspectionPersonID = personInfo.UserID;
                 inspectionApplications.InspectionPersonName = personInfo.UserName;
@@ -175,10 +127,10 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                 inspectionApplications.InspectionDeptName =deptInfo.DeptName;
                 inspectionApplications.InspectionFartherDeptID = deptFatherInfo.DeptID;
                 inspectionApplications.InspectionFatherDeptName = deptFatherInfo.DeptName;
-
-                inspectionApplications.InspectionDate = DateTime.Now;
-
+                inspectionApplications.InspectionDate = inspectionDate;
                 inspectionApplications.InspectionApplicationState = "待审核";
+
+                inspectionApplications.InputDate = DateTime.Now;
 
                 db.InspectionApplications.Add(inspectionApplications);
                 db.SaveChanges();
@@ -243,7 +195,61 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             }
         }
 
-        //获取报检单详细信息
+
+        //获取我的报检单信息
+        public JsonResult GetInspectionList()
+        {
+            try
+            {
+                var userInfo = Session["user"] as Models.UserInfo;
+
+                var postList =
+       JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var curPage = 0;
+                int.TryParse(postList["curPage"].ToString(), out curPage);
+
+                var pageSize = 0;
+                int.TryParse(postList["pageSize"].ToString(), out pageSize);
+
+                var productName = postList["productName"].ToString();//产品名称
+                var productBatch = postList["productBatchNum"].ToString();//产品批号
+                var inspectionDate = postList["inspectionDate"].ToString();//报检时间
+                var inspectionState = postList["inspectionState"].ToString();//报检单状态
+
+                var result = from i in db.InspectionApplications
+                             where i.InspectionPersonID == userInfo.UserID
+                             select i;
+
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    result = result.Where(w => w.ProductName.Contains(productName));
+                }
+                if (!string.IsNullOrEmpty(productBatch))
+                {
+                    result = result.Where(w => w.ProductBatchNum.Contains(productBatch));
+                }
+                if (!string.IsNullOrEmpty(inspectionState))
+                {
+                    result = result.Where(w => w.InspectionApplicationState == inspectionState);
+                }
+                if (!string.IsNullOrEmpty(inspectionDate))
+                {
+                    result = result.Where(w => SqlFunctions.DateDiff("day", w.InspectionDate, inspectionDate) == 0);
+                }
+
+                Dictionary<string, object> infoList = new Dictionary<string, object>();
+                infoList.Add("count", result.Count());
+                infoList.Add("infoList", result.OrderByDescending(o => o.InputDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
+                return Json(infoList);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message);
+            }
+        }
+
+        //根据报检单ID获取报检单详细信息
         public JsonResult GetInspectionDetail()
         {
             try

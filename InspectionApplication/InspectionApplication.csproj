@@ -111,6 +111,7 @@
     <Content Include="Content\dashboard.css" />
     <Content Include="Content\docs.min.css" />
     <Content Include="Content\myLayout.css" />
+    <Content Include="Content\oppo.mp3" />
     <Content Include="Content\signin.css" />
     <Content Include="Content\toastr.min.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -182,6 +183,10 @@
     <Compile Include="Migrations\201711150146548_edit5.Designer.cs">
       <DependentUpon>201711150146548_edit5.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201711230552501_edit6.cs" />
+    <Compile Include="Migrations\201711230552501_edit6.Designer.cs">
+      <DependentUpon>201711230552501_edit6.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\MaterialDept.cs" />
@@ -235,6 +240,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201711150146548_edit5.resx">
       <DependentUpon>201711150146548_edit5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711230552501_edit6.resx">
+      <DependentUpon>201711230552501_edit6.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

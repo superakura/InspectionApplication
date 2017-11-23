@@ -31,7 +31,10 @@ namespace InspectionApplication.Models
 
         [Required]
         [StringLength(200)]
-        public string ProductType { get; set; }//产品批号、型号
+        public string ProductBatchNum { get; set; }//产品批号--必填
+
+        [StringLength(200)]
+        public string ProductType { get; set; }//产品型号--非必填
 
         [Required]
         [StringLength(200)] 
@@ -45,7 +48,7 @@ namespace InspectionApplication.Models
         public DateTime ArrivalDate { get; set; }//到货日期--用户填写
 
         [Required]
-        public DateTime InspectionDate { get; set; }//报检日期时间，数据来源--用户提交报检单的系统时间，用户选择，待定
+        public DateTime InspectionDate { get; set; }//报检日期--用户填写
 
         [StringLength(100)]
         public string InspectionDeptName { get; set; }//报检单位名称,根据登录用户取值
@@ -73,6 +76,11 @@ namespace InspectionApplication.Models
 
         [StringLength(200)]
         public string DisposeRemark { get; set; }//质检报检单处理意见
+
+        public DateTime InputDate { get; set; }//报检单录入时间
+
+        [StringLength(200)]
+        public string SamplePlace { get; set; }//采样地点/车号
 
         //报检单状态
         //1、待审核

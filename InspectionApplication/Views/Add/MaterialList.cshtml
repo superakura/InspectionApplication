@@ -55,6 +55,10 @@
                                 <input type="text" class="form-control" name="tbxProductDealer" id="tbxProductDealer" placeholder="">
                             </div>
                             <div class="form-group">
+                                <label for="tbxSamplePlace">采样地点/车号</label>
+                                <input type="text" class="form-control" name="tbxSamplePlace" id="tbxSamplePlace" placeholder="">
+                            </div>
+                            <div class="form-group">
                                 <label for="tbxProductPackingType">包装规格</label>
                                 <input type="text" class="form-control" name="tbxProductPackingType" id="tbxProductPackingType" placeholder="">
                             </div>
@@ -69,7 +73,11 @@
                                 <input type="text" class="form-control" name="tbxProductFactory" id="tbxProductFactory" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxProductType">产品批号、型号</label>
+                                <label for="tbxProductBatchNum">产品批号</label>
+                                <input type="text" class="form-control" name="tbxProductBatchNum" id="tbxProductBatchNum" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tbxProductType">产品型号</label>
                                 <input type="text" class="form-control" name="tbxProductType" id="tbxProductType" placeholder="">
                             </div>
                             <div class="form-group">
@@ -281,8 +289,9 @@
                 tbxProductPackingType: { required: true, maxlength: 50 },
                 tbxArrivalDate: { required: true, maxlength: 50 },
                 tbxProductFactory: { required: true, maxlength: 50 },
-                tbxProductType: { required: true, maxlength: 50 },
+                tbxProductBatchNum: { required: true, maxlength: 50 },
                 tbxProductCount: { required: true, maxlength: 50 },
+                tbxSamplePlace: { required: true, maxlength: 50 },
                 tbxInspectionDate: { required: true, maxlength: 50 }
             }
         });
@@ -313,8 +322,10 @@
                             var arrivalDate = $("#tbxArrivalDate").val();
                             var productFactory = $("#tbxProductFactory").val();
                             var productType = $("#tbxProductType").val();
+                            var productBatchNum = $("#tbxProductBatchNum").val();
                             var productCount = $("#tbxProductCount").val();
                             var inspectionDate = $("#tbxInspectionDate").val();
+                            var samplePlace = $("#tbxSamplePlace").val();
 
                             var args = {
                                 "productName": productName,
@@ -323,6 +334,8 @@
                                 "arrivalDate": arrivalDate,
                                 "productFactory": productFactory,
                                 "productType": productType,
+                                "samplePlace": samplePlace,
+                                "productBatchNum": productBatchNum,
                                 "productCount": productCount,
                                 "inspectionDate": inspectionDate,
                                 "deptList": deptList
