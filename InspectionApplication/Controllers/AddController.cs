@@ -24,7 +24,6 @@ namespace InspectionApplication.Controllers
             return View();
         }
 
-
         //获取生产辅料的全部信息
         public JsonResult GetMaterialInfo()
         {
@@ -53,6 +52,36 @@ from [View_MaterialInfo] order by Material_Type";
                 list_mt.Add(mt);
             }
             return Json(list_mt, JsonRequestBehavior.AllowGet);
+        }
+
+        //获取生产辅料的全部信息
+        public JsonResult GetMaterialInfoByID()
+        {
+            var postList =
+   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+            var id = 0;
+            int.TryParse(postList["id"].ToString(), out id);
+
+            string sql = @"select * from [View_MaterialInfo] where Material_ID="+id+"";
+            System.Data.DataSet ds = DB2.InitDs(sql, "t");
+
+            Material mt = new Material();
+            mt.Material_Name= ds.Tables[0].Rows[0]["Material_Name"].ToString();
+            mt.Material_Request = ds.Tables[0].Rows[0]["Material_Request"].ToString();
+            mt.ExecutionStandard_Name= ds.Tables[0].Rows[0]["ExecutionStandard_Name"].ToString();
+            mt.ExecutionStandard_Type= ds.Tables[0].Rows[0]["ExecutionStandard_Type"].ToString();
+            mt.TechnicalProtocol_Name= ds.Tables[0].Rows[0]["TechnicalProtocol_Name"].ToString();
+
+            string sql_Dept = "select * from View_MaterialDept where Material_ID=" + id + "";
+            System.Data.DataSet ds_MaterialDept = DB2.InitDs(sql_Dept, "t2");
+            mt.dept += "<ul class='list-unstyled'>";
+            for (int x = 0; x < ds_MaterialDept.Tables[0].Rows.Count; x++)
+            {
+                mt.dept +="<li>" +ds_MaterialDept.Tables[0].Rows[x][0].ToString() + ";</li>";
+            }
+            mt.dept += "</ul>";
+            return Json(mt);
         }
 
         //获取生产辅料的类型
@@ -195,8 +224,7 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             }
         }
 
-
-        //获取我的报检单信息
+        //获取我的报检单列表
         public JsonResult GetInspectionList()
         {
             try
