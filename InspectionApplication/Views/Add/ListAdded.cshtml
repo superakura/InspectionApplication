@@ -21,6 +21,7 @@
                         <h3 class="text-primary" id="lblState"></h3>
                     </div>
                     <div class="col-lg-6">
+                        <h3 id="lblInspectionNum"></h3>
                         <h3 id="lblProductFactory"></h3>
                         <h3 id="lblProductBatchNum"></h3>
                         <h3 id="lblSamplePlace"></h3>
@@ -83,6 +84,7 @@
             <thead>
                 <tr>
                     <th>序号</th>
+                    <th>报检单编号</th>
                     <th>产品名称</th>
                     <th>产品批号</th>
                     <th>报检日期</th>
@@ -172,9 +174,11 @@
                     $("#tableList").empty();
                     $.each(listInfo, function (index, val) {
                         var personName = val["DisposePersonName"] == null ? "" : val["DisposePersonName"];
-                        var disposeDate = val["DisposeDate"] == null ? "" : getJsonDate(val["DisposeDate"]);
+                        var inspectionNum = val["InspectionApplicationNum"] == null ? "" : val["InspectionApplicationNum"];
+                        var disposeDate = val["DisposeDate"] == null ? "" : getJsonDateTime(val["DisposeDate"]);
                         var temp = "<tr>";
                         temp += "<td>" + (index + 1) + "</td>";
+                        temp += "<td>" + inspectionNum + "</td>";
                         temp += "<td>" + val["ProductName"] + "</td>";
                         temp += "<td>" + val["ProductBatchNum"] + "</td>";
                         temp += "<td>" + getJsonDate(val["InspectionDate"]) + "</td>";
@@ -316,6 +320,7 @@
                 var inspectionDeptList = result["inspectionDeptList"];
                 var inspectionInfo = result["inspectionInfo"];
 
+                var inspectionNum = inspectionInfo.InspectionApplicationNum == null ? "" : inspectionInfo.InspectionApplicationNum;
                 $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
                 $("#lblProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
                 $("#lblProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
@@ -323,6 +328,7 @@
                 $("#lblState").text("报检单状态：" + inspectionInfo.InspectionApplicationState);
                 $("#lblProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
 
+                $("#lblInspectionNum").text("报检单编号：" + inspectionNum);
                 $("#lblProductFactory").text("生产厂家：" + inspectionInfo.ProductFactory);
                 $("#lblProductType").text("产品型号：" + inspectionInfo.ProductType);
                 $("#lblProductCount").text("到货数量：" + inspectionInfo.ProductCount);

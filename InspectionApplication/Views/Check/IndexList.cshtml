@@ -27,6 +27,7 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <h4 id="lblProductName"></h4>
+                        <h4 id="lblProductBatchNum"></h4>
                         <h4 id="lblProductDealer"></h4>
                         <h4 id="lblProductPackingType"></h4>
                         <h4 id="lblArrivalDate"></h4>
@@ -36,14 +37,16 @@
                         <h4 id="lblProductFactory"></h4>
                         <h4 id="lblProductType"></h4>
                         <h4 id="lblProductCount"></h4>
+                        <h4 id="lblSamplePlace"></h4>
                         <h4 id="lblInspectionDate"></h4>
-                        <h4 id="lblInspectionPersonName"></h4>
-                        <h4 id="lblInspectionDept"></h4>
+                        <h4 id="lblInspectionPerson"></h4>
                     </div>
                 </div>
                 <div class="row">
-                    <h4>使用单位</h4>
-                    <ul style="list-style-type:decimal" id="productDeptList"></ul>
+                    <div class="col-lg-12">
+                        <h4>使用单位</h4>
+                        <ul style="list-style-type:decimal" id="productDeptList"></ul>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -51,6 +54,98 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 <button type="button" class="btn btn-danger" id="btnRefuse"><span class="glyphicon glyphicon-remove"></span> 回退</button>
                 <button type="button" class="btn btn-primary" id="btnAccess"><span class="glyphicon glyphicon-ok"></span> 接收</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModal-label">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="detailModal-label">报检单详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form class="form-inline" role="form">
+                            <div class="form-group">
+                                <label class="text-danger" for="tbxDetailInspectionNum">报检单编号：</label>
+                                <input class="form-control" id="tbxDetailInspectionNum" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label class="text-info" id="lblDetailState"></label>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <h4 id="lblDetailProductFactory"></h4>
+                        <h4 id="lblDetailProductDealer"></h4>
+                        <h4 id="lblDetailProductPackingType"></h4>
+                        <h4 id="lblDetailArrivalDate"></h4>
+                        <h4 id="lblDetailInspectionDatePerson"></h4>
+                    </div>
+                    <div class="col-lg-6">
+                        <h4 id="lblDetailProductBatchNum"></h4>
+                        <h4 id="lblDetailProductType"></h4>
+                        <h4 id="lblDetailSamplePlace"></h4>
+                        <h4 id="lblDetailProductCount"></h4>
+                        <h4 id="lblDetailDisposeDatePerson"></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h4 id="lblDetailRemark"></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h4>使用单位</h4>
+                        <ul style="list-style-type:decimal" id="productDetailDeptList"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="hidden" id="lblDetailInspectionID"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-remove"></span> 关闭
+                </button>
+                <button type="button" class="btn btn-primary" id="btnEditInspectionNum">
+                    <span class="glyphicon glyphicon-edit"></span> 修改编号
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="backModal" tabindex="-1" role="dialog" aria-labelledby="backModal-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="backModal-label">回退报检单</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label class="control-label" id="lblBackInspectionNum"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" id="lblBackInspectionName"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" id="lblBackInspectionBatchNum"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="tbxBackRemark">回退原因</label>
+                        <textarea id="tbxBackRemark" class="form-control" rows="3" cols="20"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span id="lblBackInspectionID"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="btnBack">提交</button>
             </div>
         </div>
     </div>
@@ -72,14 +167,23 @@
                 <input type="text" class="form-control" id="tbxProductName">
             </div>
             <div class="form-group">
-                <label for="tbxInspectionDate">报检日期</label>
-                <input type="text" readonly class="form-control" id="tbxInspectionDate">
+                <label for="tbxProductBatchNum">产品批号</label>
+                <input type="text" class="form-control" id="tbxProductBatchNum">
             </div>
             <div class="form-group">
                 <label for="ddlInspectionDept">报检单位</label>
                 <select class="form-control" id="ddlInspectionDept">
                     <option value="">全部</option>
                 </select>
+            </div>
+            <br /><br />
+            <div class="form-group">
+                <label for="tbxInspectionDate">接收日期范围</label>
+                <input type="text" readonly class="form-control" id="tbxArriveDateStart">
+            </div>
+            --
+            <div class="form-group">
+                <input type="text" readonly class="form-control" id="tbxArriveDateEnd">
             </div>
             <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
             <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
@@ -122,7 +226,7 @@
 <script>
     $(function () {
         //初始化日期控件
-        $("#tbxInspectionDate").datetimepicker({
+        $("#tbxArriveDateStart,#tbxArriveDateEnd").datetimepicker({
             language: 'zh-CN',
             weekStart: 1,
             todayBtn: 1,
@@ -134,10 +238,11 @@
             format: 'yyyy-mm-dd'
         });
 
+        //加载二级单位列表
         LoadFatherDept();
 
         function clearNoCheckInfo() {
-            $("#tbxInspectionNum,#tbxInspectionRemark").text();
+            $("#tbxInspectionNum,#tbxInspectionRemark").val("");
             $("label.error").hide();
             $(".error").removeClass("error");
         }
@@ -207,17 +312,18 @@
                 var inspectionInfo = result["inspectionInfo"];
 
                 $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
+                $("#lblProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
                 $("#lblProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
                 $("#lblProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
                 $("#lblArrivalDate").text("到货日期：" + getJsonDate(inspectionInfo.ArrivalDate));
                 $("#lblState").text("报检单状态：" + inspectionInfo.InspectionApplicationState);
 
                 $("#lblProductFactory").text("生产厂家：" + inspectionInfo.ProductFactory);
-                $("#lblProductType").text("产品批号、型号：" + inspectionInfo.ProductType);
+                $("#lblProductType").text("产品型号：" + inspectionInfo.ProductType);
                 $("#lblProductCount").text("到货数量：" + inspectionInfo.ProductCount);
                 $("#lblInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
-                $("#lblInspectionPersonName").text("报检人：" + inspectionInfo.InspectionPersonName);
-                $("#lblInspectionDept").text("报检单位：" + inspectionInfo.InspectionFatherDeptName);
+                $("#lblInspectionPerson").text("报检人：" +inspectionInfo.InspectionFatherDeptName+"  "+ inspectionInfo.InspectionPersonName);
+                $("#lblSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
 
                 $("#noCheckInspectionID").text(inspectionInfo.InspectionApplicationID);
 
@@ -318,13 +424,12 @@
         getList(1, $("#ddlPageSize").val());
         function getList(curPage, pageSize) {
             var productName = $("#tbxProductName").val();
-            var inspectionDate = $("#tbxInspectionDate").val();
+            //var inspectionDate = $("#tbxInspectionDate").val();
 
             var args = {
                 "curPage": curPage,
                 "pageSize": pageSize,
-                "productName": productName,
-                "inspectionDate": inspectionDate
+                "productName": productName
             };
             $.post("/Check/GetCheckList", encodeURIComponent(JSON.stringify(args)), function (result) {
                 var listInfo = result["infoList"];//数据列表
@@ -345,14 +450,23 @@
                         $.each(listInfo, function (indexInArray, valueOfElement) {
                             temp += "<li>";
                             var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
-                            var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
-                            var disposeDate = getJsonDate(valueOfElement.DisposeDate);
-                            temp += "<div class='panel panel-default'><div class='panel-heading'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></div>";
+                            //var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
+                            var disposeDate = getJsonDateTime(valueOfElement.DisposeDate);
+                            //var state = "";
+                            //if (valueOfElement.ProductName == "分析完成") {
+                            //    state = "<span class='label label-success'>分析完成</span> ";
+                            //}
+                            //else
+                            //{
+                            //    state = "<span class='label label-info'>已接收</span> ";
+                            //}
+                            temp += "<div class='panel panel-default'>";
+                            temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></a></div>";
                             temp += "<div class='panel-body'>";
                             temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
                             //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
                             //temp += "【经销商：" + valueOfElement.ProductDealer + "】";
-                            temp += "【批号、型号：" + valueOfElement.ProductType + "】";
+                            temp += "【批号：" + valueOfElement.ProductBatchNum + "】";
                             //temp += "【包装规格：" + valueOfElement.ProductPackingType + "】";
                             //temp += "【到货数量：" + valueOfElement.ProductCount + "】";
                             //temp += "【到货日期：" + arrivalDate + "】";
@@ -360,10 +474,10 @@
                             temp += "【报检：" + valueOfElement.InspectionFatherDeptName + " | " + valueOfElement.InspectionPersonName + " | " + inspectionDate + "】";
                             temp += " 【接收：" + valueOfElement.DisposePersonName + " | " + disposeDate + "】";
 
-                            temp += "<button class='btn btn-info btn-sm btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'>详细信息</button>&nbsp;";
-                            temp += "<button class='btn btn-danger btn-sm btnEdit' data-id='" + valueOfElement.InspectionApplicationID + "'>修改编号</button>";
+                            //temp += "<button class='btn btn-default btn-sm btnOk' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-scale'></span> 分析完成</button>&nbsp;";
+                            //temp += "<button class='btn btn-default btn-sm btnEditNum' data-num='" + valueOfElement.InspectionApplicationNum + "' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-pencil'></span> 修改编号</button>&nbsp;";
+                            temp += "<button class='btn btn-danger btn-sm btnBack' data-id='" + valueOfElement.InspectionApplicationID + "' data-name='" + valueOfElement.ProductName + "' data-BatchNum='" + valueOfElement.ProductBatchNum + "' data-Num='" + valueOfElement.InspectionApplicationNum +"'>回退</button>";
                             temp += "</div></div></li>";
-
                         });
                         $("#listInspectionCheck").empty().append(temp);
                     });
@@ -445,6 +559,132 @@
             $("#tbxProductName").val("");
             $("#tbxInspectionDate").val("");
             getList(1, $("#ddlPageSize").val());
+        });
+
+        //已处理订单详细信息
+        $(document).on("click", ".btnDetail", function () {
+            var infoID = $(this).attr("data-id");
+            var args = {
+                "id": infoID
+            };
+            $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
+                $('#detailModal').modal('show');
+                var inspectionDeptList = result["inspectionDeptList"];
+                var inspectionInfo = result["inspectionInfo"];
+
+                $("#detailModal-label").text(inspectionInfo.ProductName);
+
+                $("#lblDetailInspectionID").text(inspectionInfo.InspectionApplicationID);
+                $("#tbxDetailInspectionNum").val(inspectionInfo.InspectionApplicationNum);
+                $("#lblDetailProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
+                $("#lblDetailProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
+                $("#lblDetailProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
+                $("#lblDetailArrivalDate").text("到货日期：" + getJsonDate(inspectionInfo.ArrivalDate));
+                $("#lblDetailState").text("报检单状态：" + inspectionInfo.InspectionApplicationState);
+
+                $("#lblDetailProductFactory").text("生产厂家：" + inspectionInfo.ProductFactory);
+                $("#lblDetailProductType").text("产品型号：" + inspectionInfo.ProductType);
+                $("#lblDetailProductCount").text("到货数量：" + inspectionInfo.ProductCount);
+                $("#lblDetailSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
+
+                $("#lblDetailInspectionDatePerson").text("报检：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | " + getJsonDate(inspectionInfo.InspectionDate));
+                $("#lblDetailDisposeDatePerson").text("接收：" + inspectionInfo.DisposePersonName + " | " + getJsonDateTime(inspectionInfo.DisposeDate));
+               
+                $("#lblDetailRemark").text("备注：" + inspectionInfo.DisposeRemark);
+
+                var deptLi = "";
+                $.each(inspectionDeptList, function (indexInArray, valueOfElement) {
+                    deptLi += "<li>" + valueOfElement.fatherName + "：" + valueOfElement.childName + "</li>";
+                });
+                $("#productDetailDeptList").empty().append(deptLi);
+            });
+        });
+
+        //修改编号按钮
+        $("#btnEditInspectionNum").click(function () {
+            var inspectionNum = $("#tbxDetailInspectionNum").val();
+            var inspectionID = $("#lblDetailInspectionID").text();
+            if (inspectionNum == "") {
+                toastrl.error("报检单编号不能为空！","提示")
+            }
+            else {
+                var argsNum = { "num": inspectionNum };
+                $.post("/Check/CheckInspectionNum", encodeURIComponent(JSON.stringify(argsNum)), function (isOk) {
+                    //检查报检单编号是否重复
+                    if (isOk == "ok") {
+                        Ewin.confirm({ message: "确认要修改此报检单编号吗？" }).on(function (e) {
+                            if (!e) {
+                                return;
+                            }
+                            else {
+                                var args = { "id": inspectionID,"inspectionNum": inspectionNum };
+                                $.post("/Check/EditInspectionNum", encodeURIComponent(JSON.stringify(args)), function (result) {
+                                    if (result == "ok") {
+                                        toastr.success("修改报检单编号成功！", "提示");
+                                        $('#detailModal').modal('hide');
+                                        //getList(1, $("#ddlPageSize").val());
+                                        var goPageNum = parseInt($("#tbxCurPage").val());
+                                        getList(goPageNum, $("#ddlPageSize").val());
+                                    }
+                                    else {
+                                        toastr.error(result, "提示");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        if (isOk == "error") {
+                            toastr.error("报检单编号不能重复！", "提示");
+                        }
+                        else {
+                            toastr.error(isOk, "提示");
+                        }
+                    }
+                });
+            }
+        });
+
+        //回退按钮
+        $(document).on("click", ".btnBack", function () {
+            $('#backModal').modal('show');
+            var infoID = $(this).attr("data-id");
+            var num = $(this).attr("data-Num");
+            var name = $(this).attr("data-Name");
+            var batchNum = $(this).attr("data-BatchNum");
+            $("#lblBackInspectionID").text(infoID);
+            $("#lblBackInspectionName").text("产品名称：" + name);
+            $("#lblBackInspectionNum").text("报检单编号：" + num);
+            $("#lblBackInspectionBatchNum").text("产品批号：" + batchNum);
+        });
+
+        //回退提交按钮
+        $("#btnBack").click(function () {
+            var remark = $("#tbxBackRemark").text();
+            var id = $("#lblBackInspectionID").text();
+            if (remark == "") {
+                toastr.error("回退必须填写回退原因！", "提示");
+            }
+            else {
+                Ewin.confirm({ message: "确认要回退此报检单吗？" }).on(function (e) {
+                    if (!e) {
+                        return;
+                    }
+                    else {
+                        var args = { "id": id, "remark": remark };
+                        $.post("/Check/BackInspectionChecked", encodeURIComponent(JSON.stringify(args)), function (result) {
+                            if (result == "ok") {
+                                toastr.success("回退报检单成功！", "提示");
+                                $('#backModal').modal('hide');
+                                getList(1, $("#ddlPageSize").val());
+                            }
+                            else {
+                                toastr.error(result, "提示");
+                            }
+                        });
+                    }
+                });
+            }
         });
     });
 </script>

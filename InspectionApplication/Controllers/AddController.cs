@@ -71,7 +71,9 @@ from [View_MaterialInfo] order by Material_Type";
             mt.Material_Request = ds.Tables[0].Rows[0]["Material_Request"].ToString();
             mt.ExecutionStandard_Name= ds.Tables[0].Rows[0]["ExecutionStandard_Name"].ToString();
             mt.ExecutionStandard_Type= ds.Tables[0].Rows[0]["ExecutionStandard_Type"].ToString();
+            mt.ExecutionStandard_File = ds.Tables[0].Rows[0]["ExecutionStandard_File"].ToString();
             mt.TechnicalProtocol_Name= ds.Tables[0].Rows[0]["TechnicalProtocol_Name"].ToString();
+            mt.TechnicalProtocol_File = ds.Tables[0].Rows[0]["TechnicalProtocol_File"].ToString();
 
             string sql_Dept = "select * from View_MaterialDept where Material_ID=" + id + "";
             System.Data.DataSet ds_MaterialDept = DB2.InitDs(sql_Dept, "t2");

@@ -24,6 +24,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -187,12 +188,24 @@
     <Compile Include="Migrations\201711230552501_edit6.Designer.cs">
       <DependentUpon>201711230552501_edit6.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201712070046095_edit7.cs" />
+    <Compile Include="Migrations\201712070046095_edit7.Designer.cs">
+      <DependentUpon>201712070046095_edit7.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201712070118200_edit8.cs" />
+    <Compile Include="Migrations\201712070118200_edit8.Designer.cs">
+      <DependentUpon>201712070118200_edit8.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201712070213097_edit9.cs" />
+    <Compile Include="Migrations\201712070213097_edit9.Designer.cs">
+      <DependentUpon>201712070213097_edit9.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Models\MaterialDept.cs" />
     <Compile Include="Models\DeptInfo.cs" />
     <Compile Include="Models\InspectionApplications.cs" />
-    <Compile Include="Models\Logs.cs" />
     <Compile Include="Models\Material.cs" />
     <Compile Include="Models\Material_Type.cs" />
     <Compile Include="Models\ViewMenu.cs" />
@@ -243,6 +256,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201711230552501_edit6.resx">
       <DependentUpon>201711230552501_edit6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712070046095_edit7.resx">
+      <DependentUpon>201712070046095_edit7.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712070118200_edit8.resx">
+      <DependentUpon>201712070118200_edit8.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712070213097_edit9.resx">
+      <DependentUpon>201712070213097_edit9.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

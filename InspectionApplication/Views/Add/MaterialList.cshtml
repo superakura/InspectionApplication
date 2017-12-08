@@ -47,33 +47,33 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="tbxProductName">产品名称（化学名称）</label>
+                                <label for="tbxProductName">产品名称（化学名称）(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductName" id="tbxProductName" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxProductDealer">经销商</label>
+                                <label for="tbxProductDealer">经销商(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductDealer" id="tbxProductDealer" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxSamplePlace">采样地点/车号</label>
+                                <label for="tbxSamplePlace">采样地点/车号(必填)</label>
                                 <input type="text" class="form-control" name="tbxSamplePlace" id="tbxSamplePlace" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxProductPackingType">包装规格</label>
+                                <label for="tbxProductPackingType">包装规格(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductPackingType" id="tbxProductPackingType" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label>到货日期</label>
+                                <label>到货日期(必填)</label>
                                 <input type="text" class="form-control" readonly name="tbxArrivalDate" id="tbxArrivalDate" placeholder="">
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="tbxProductFactory">生产厂家</label>
+                                <label for="tbxProductFactory">生产厂家(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductFactory" id="tbxProductFactory" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxProductBatchNum">产品批号</label>
+                                <label for="tbxProductBatchNum">产品批号(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductBatchNum" id="tbxProductBatchNum" placeholder="">
                             </div>
                             <div class="form-group">
@@ -81,11 +81,11 @@
                                 <input type="text" class="form-control" name="tbxProductType" id="tbxProductType" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="tbxProductCount">到货数量</label>
+                                <label for="tbxProductCount">到货数量(必填)</label>
                                 <input type="text" class="form-control" name="tbxProductCount" id="tbxProductCount" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label>报检日期</label>
+                                <label>报检日期(必填)</label>
                                 <input type="text" class="form-control" readonly name="tbxInspectionDate" id="tbxInspectionDate" placeholder="">
                             </div>
                         </div>
@@ -135,7 +135,11 @@
                 <br />
                 <span id="lblExecutionStandardType"></span>
                 <br />
+                <span id="lblExecutionStandardFile"></span>
+                <br />
                 <span id="lblTechnicalProtocolName"></span>
+                <br />
+                <span id="lblTechnicalProtocolFile"></span>
                 <h5>技术要求</h5>
                 <div id="lblMaterialRequest"></div>
             </div>
@@ -296,7 +300,8 @@
                 $("#detailModal-label").text(result.Material_Name);
                 $("#lblExecutionStandardName").text("执行标准：" + result.ExecutionStandard_Name);
                 $("#lblExecutionStandardType").text("执行类型：" + result.ExecutionStandard_Type);
-                //$("#lblTechnicalProtocolName").text("技术协议：" + result.TechnicalProtocol_Name);
+                $("#lblExecutionStandardFile").html("标准文件：" + "<a target='_blank' href='http://10.126.10.180/ExecutionStandard_File/" + result.ExecutionStandard_File + "'>" + result.ExecutionStandard_File + "</a>");
+                $("#lblTechnicalProtocolName").text("技术协议：" + result.TechnicalProtocol_Name);
                 $("#lblMaterialRequest").html(result.Material_Request);
                 $("#lblMaterialDept").html(result.dept);
             });

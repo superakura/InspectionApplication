@@ -147,7 +147,7 @@ namespace InspectionApplication.Controllers
                 int.TryParse(postList["pageSize"].ToString(), out pageSize);
 
                 var productName = postList["productName"].ToString();//产品名称
-                var inspectionDate = postList["inspectionDate"].ToString();//报检时间
+                //var inspectionDate = postList["inspectionDate"].ToString();//报检时间
 
                 var result = from i in db.InspectionApplications
                              where i.InspectionApplicationState == "审核通过"
@@ -157,18 +157,89 @@ namespace InspectionApplication.Controllers
                 {
                     result = result.Where(w => w.ProductName.Contains(productName));
                 }
-                if (!string.IsNullOrEmpty(inspectionDate))
-                {
-                    result = result.Where(w => SqlFunctions.DateDiff("day", w.InspectionDate, inspectionDate) == 0);
-                }
+                //if (!string.IsNullOrEmpty(inspectionDate))
+                //{
+                //    result = result.Where(w => SqlFunctions.DateDiff("day", w.InspectionDate, inspectionDate) == 0);
+                //}
                 Dictionary<string, object> infoList = new Dictionary<string, object>();
                 infoList.Add("count", result.Count());
-                infoList.Add("infoList", result.OrderByDescending(o => o.InspectionDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
+                infoList.Add("infoList", result.OrderByDescending(o => o.DisposeDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
                 return Json(infoList);
             }
             catch (Exception ex)
             {
                 return Json(ex.Message);
+            }
+        }
+
+        //修改报检单编号
+        public string EditInspectionNum()
+        {
+            try
+            {
+                var postList =
+   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var inspectionID = 0;
+                int.TryParse(postList["id"].ToString(), out inspectionID);
+                var inspectionNum = postList["inspectionNum"].ToString();
+
+                var inspectionInfo = db.InspectionApplications.Find(inspectionID);
+
+                var inspectionNumOld = inspectionInfo.InspectionApplicationNum;
+                inspectionInfo.InspectionApplicationNum = inspectionNum;
+
+                var userInfo = Session["user"] as Models.UserInfo;
+                Models.Log log = new Models.Log();
+                log.LogInfo = "用户【"+userInfo.UserName+"】将ID为【"+inspectionInfo.InspectionApplicationID+"】的报检单编号【"+inspectionNumOld+"】修改为【"+inspectionNum+"】";
+                log.LogInputDate = DateTime.Now;
+                log.LogInputPerson = userInfo.UserID;
+                log.LogType = "修改报检单编号";
+                log.InspectionID = inspectionInfo.InspectionApplicationID;
+                db.Log.Add(log);
+
+                db.SaveChanges();
+                return "ok";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        //回退已接收的报检单
+        public string BackInspectionChecked()
+        {
+            try
+            {
+                var postList =
+  JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var inspectionID = 0;
+                int.TryParse(postList["id"].ToString(), out inspectionID);
+                var remark = postList["remark"].ToString();
+
+                var inspectionInfo = db.InspectionApplications.Find(inspectionID);
+                var remarkOld = inspectionInfo.DisposeRemark;
+
+                inspectionInfo.DisposeRemark = remarkOld + remark;//回退的原因要加上报检单原来的备注信息。
+                inspectionInfo.InspectionApplicationState = "审核回退";
+
+                var userInfo = Session["user"] as Models.UserInfo;
+                Models.Log log = new Models.Log();
+                log.LogInfo = "用户【" + userInfo.UserName + "】将编号为【" + inspectionInfo.InspectionApplicationNum + "】的报检单进行回退操作";
+                log.LogInputDate = DateTime.Now;
+                log.LogInputPerson = userInfo.UserID;
+                log.LogType = "回退已接收报检单";
+                log.InspectionID = inspectionInfo.InspectionApplicationID;
+                db.Log.Add(log);
+
+                db.SaveChanges();
+                return "ok";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
             }
         }
     }

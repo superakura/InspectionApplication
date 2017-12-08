@@ -20,14 +20,14 @@ namespace InspectionApplication.Models
 
         [Required]
         [StringLength(20)]
-        public string UserName { get; set; }
+        public string UserName { get; set; }//用户姓名
 
         [Required]
         [StringLength(100)]
-        public string UserPassword { get; set; }
+        public string UserPassword { get; set; }//用户密码
 
         [StringLength(50)]
-        public string UserPhone { get; set; }
+        public string UserPhone { get; set; }//用户联系方式
 
         //用户角色
         //1、报检单申请
