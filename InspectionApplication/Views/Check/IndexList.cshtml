@@ -84,14 +84,16 @@
                         <h4 id="lblDetailProductDealer"></h4>
                         <h4 id="lblDetailProductPackingType"></h4>
                         <h4 id="lblDetailArrivalDate"></h4>
-                        <h4 id="lblDetailInspectionDatePerson"></h4>
+                        <h4 id="lblDetailInspectionPerson"></h4>
+                        <h4 id="lblDetailInspectionDate"></h4>
                     </div>
                     <div class="col-lg-6">
                         <h4 id="lblDetailProductBatchNum"></h4>
                         <h4 id="lblDetailProductType"></h4>
                         <h4 id="lblDetailSamplePlace"></h4>
                         <h4 id="lblDetailProductCount"></h4>
-                        <h4 id="lblDetailDisposeDatePerson"></h4>
+                        <h4 id="lblDetailDisposePerson"></h4>
+                        <h4 id="lblDetailDisposeDate"></h4>
                     </div>
                 </div>
                 <div class="row">
@@ -159,8 +161,8 @@
         <h3>已处理报检单</h3>
         <div class="form-inline">
             <div class="form-group">
-                <label for="tbxInspectionNum">编号</label>
-                <input type="text" class="form-control" id="tbxInspectionNum">
+                <label for="tbxInspectionNumSearch">编号</label>
+                <input type="text" class="form-control" id="tbxInspectionNumSearch">
             </div>
             <div class="form-group">
                 <label for="tbxProductName">产品名称</label>
@@ -178,12 +180,12 @@
             </div>
             <br /><br />
             <div class="form-group">
-                <label for="tbxInspectionDate">接收日期范围</label>
-                <input type="text" readonly class="form-control" id="tbxArriveDateStart">
+                <label for="tbxDisposeDateStart">接收日期范围</label>
+                <input type="text" readonly class="form-control" id="tbxDisposeDateStart">
             </div>
             --
             <div class="form-group">
-                <input type="text" readonly class="form-control" id="tbxArriveDateEnd">
+                <input type="text" readonly class="form-control" id="tbxDisposeDateEnd">
             </div>
             <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
             <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
@@ -225,8 +227,13 @@
 </audio>
 <script>
     $(function () {
+        //日期比较，返回true、false
+        function CompareDate(d1, d2) {
+            return ((new Date(d1.replace(/-/g, "\/"))) <= (new Date(d2.replace(/-/g, "\/"))));
+        }
+
         //初始化日期控件
-        $("#tbxArriveDateStart,#tbxArriveDateEnd").datetimepicker({
+        $("#tbxDisposeDateStart,#tbxDisposeDateEnd").datetimepicker({
             language: 'zh-CN',
             weekStart: 1,
             todayBtn: 1,
@@ -263,7 +270,7 @@
                     temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></div>";
                     temp += "<div class='panel-body'>";
                     temp += "【报检：" + valueOfElement.InspectionFatherDeptName+" | ";
-                    temp += "" + valueOfElement.InspectionPersonName + " | " + inspectionDate + "】";
+                    temp += "" + valueOfElement.InspectionPersonName + " | 电话：" + valueOfElement.UserPhone + " | " + inspectionDate + "】";
                     temp += "【批号：" + valueOfElement.ProductBatchNum + "】 ";
                     temp += "<button class='btn btn-success btn-sm btnDispose' data-id='" + valueOfElement.InspectionApplicationID + "'>处理</button>";
                     temp += "</div></div></li>";
@@ -299,7 +306,7 @@
             });
         }
 
-        //待审核列表--【处理】按钮
+        //【处理】按钮
         $(document).on("click", ".btnDispose", function () {
             clearNoCheckInfo();
             var infoID = $(this).attr("data-id");
@@ -309,7 +316,7 @@
             $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
                 $('#noCheckModal').modal('show');
                 var inspectionDeptList = result["inspectionDeptList"];
-                var inspectionInfo = result["inspectionInfo"];
+                var inspectionInfo = result["inspectionInfo"][0];
 
                 $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
                 $("#lblProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
@@ -322,7 +329,7 @@
                 $("#lblProductType").text("产品型号：" + inspectionInfo.ProductType);
                 $("#lblProductCount").text("到货数量：" + inspectionInfo.ProductCount);
                 $("#lblInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
-                $("#lblInspectionPerson").text("报检人：" +inspectionInfo.InspectionFatherDeptName+"  "+ inspectionInfo.InspectionPersonName);
+                $("#lblInspectionPerson").text("报检人：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | 电话：" + inspectionInfo.UserPhone);
                 $("#lblSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
 
                 $("#noCheckInspectionID").text(inspectionInfo.InspectionApplicationID);
@@ -424,12 +431,20 @@
         getList(1, $("#ddlPageSize").val());
         function getList(curPage, pageSize) {
             var productName = $("#tbxProductName").val();
-            //var inspectionDate = $("#tbxInspectionDate").val();
-
+            var inspectionNum = $("#tbxInspectionNumSearch").val();
+            var productBatchNum = $("#tbxProductBatchNum").val();
+            var inspectionDept = $("#ddlInspectionDept").val();
+            var disposeDateStart = $("#tbxDisposeDateStart").val();
+            var disposeDateEnd = $("#tbxDisposeDateEnd").val();
             var args = {
                 "curPage": curPage,
                 "pageSize": pageSize,
-                "productName": productName
+                "productName": productName,
+                "inspectionNum": inspectionNum,
+                "productBatchNum": productBatchNum,
+                "inspectionDept": inspectionDept,
+                "disposeDateStart": disposeDateStart,
+                "disposeDateEnd": disposeDateEnd
             };
             $.post("/Check/GetCheckList", encodeURIComponent(JSON.stringify(args)), function (result) {
                 var listInfo = result["infoList"];//数据列表
@@ -445,42 +460,41 @@
 
                     $("#totalPageCount").text(parseInt(totalPageCount));
                     $("#totalDataCount").text(count);
-                    $.post("/Check/GetCheckList", "", function (data, textStatus, jqXHR) {
-                        var temp = "";
-                        $.each(listInfo, function (indexInArray, valueOfElement) {
-                            temp += "<li>";
-                            var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
-                            //var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
-                            var disposeDate = getJsonDateTime(valueOfElement.DisposeDate);
-                            //var state = "";
-                            //if (valueOfElement.ProductName == "分析完成") {
-                            //    state = "<span class='label label-success'>分析完成</span> ";
-                            //}
-                            //else
-                            //{
-                            //    state = "<span class='label label-info'>已接收</span> ";
-                            //}
-                            temp += "<div class='panel panel-default'>";
-                            temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></a></div>";
-                            temp += "<div class='panel-body'>";
-                            temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
-                            //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
-                            //temp += "【经销商：" + valueOfElement.ProductDealer + "】";
-                            temp += "【批号：" + valueOfElement.ProductBatchNum + "】";
-                            //temp += "【包装规格：" + valueOfElement.ProductPackingType + "】";
-                            //temp += "【到货数量：" + valueOfElement.ProductCount + "】";
-                            //temp += "【到货日期：" + arrivalDate + "】";
-                            //temp += " <br />";
-                            temp += "【报检：" + valueOfElement.InspectionFatherDeptName + " | " + valueOfElement.InspectionPersonName + " | " + inspectionDate + "】";
-                            temp += " 【接收：" + valueOfElement.DisposePersonName + " | " + disposeDate + "】";
 
-                            //temp += "<button class='btn btn-default btn-sm btnOk' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-scale'></span> 分析完成</button>&nbsp;";
-                            //temp += "<button class='btn btn-default btn-sm btnEditNum' data-num='" + valueOfElement.InspectionApplicationNum + "' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-pencil'></span> 修改编号</button>&nbsp;";
-                            temp += "<button class='btn btn-danger btn-sm btnBack' data-id='" + valueOfElement.InspectionApplicationID + "' data-name='" + valueOfElement.ProductName + "' data-BatchNum='" + valueOfElement.ProductBatchNum + "' data-Num='" + valueOfElement.InspectionApplicationNum +"'>回退</button>";
-                            temp += "</div></div></li>";
-                        });
-                        $("#listInspectionCheck").empty().append(temp);
+                    var temp = "";
+                    $.each(listInfo, function (indexInArray, valueOfElement) {
+                        temp += "<li>";
+                        var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
+                        //var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
+                        var disposeDate = getJsonDateTime(valueOfElement.DisposeDate);
+                        //var state = "";
+                        //if (valueOfElement.ProductName == "分析完成") {
+                        //    state = "<span class='label label-success'>分析完成</span> ";
+                        //}
+                        //else
+                        //{
+                        //    state = "<span class='label label-info'>已接收</span> ";
+                        //}
+                        temp += "<div class='panel panel-default'>";
+                        temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></a></div>";
+                        temp += "<div class='panel-body'>";
+                        temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
+                        //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
+                        //temp += "【经销商：" + valueOfElement.ProductDealer + "】";
+                        temp += "【批号：" + valueOfElement.ProductBatchNum + "】";
+                        //temp += "【包装规格：" + valueOfElement.ProductPackingType + "】";
+                        //temp += "【到货数量：" + valueOfElement.ProductCount + "】";
+                        //temp += "【到货日期：" + arrivalDate + "】";
+                        //temp += " <br />";
+                        temp += "【报检：" + valueOfElement.InspectionFatherDeptName + " | " + valueOfElement.InspectionPersonName + " | 电话：" + valueOfElement.UserPhone + " | " + inspectionDate + "】";
+                        temp += " 【接收：" + valueOfElement.DisposePersonName + " | " + disposeDate + "】";
+
+                        //temp += "<button class='btn btn-default btn-sm btnOk' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-scale'></span> 分析完成</button>&nbsp;";
+                        //temp += "<button class='btn btn-default btn-sm btnEditNum' data-num='" + valueOfElement.InspectionApplicationNum + "' data-id='" + valueOfElement.InspectionApplicationID + "'><span class='glyphicon glyphicon-pencil'></span> 修改编号</button>&nbsp;";
+                        temp += "<button class='btn btn-danger btn-sm btnBack' data-id='" + valueOfElement.InspectionApplicationID + "' data-name='" + valueOfElement.ProductName + "' data-BatchNum='" + valueOfElement.ProductBatchNum + "' data-Num='" + valueOfElement.InspectionApplicationNum + "'>回退</button>";
+                        temp += "</div></div></li>";
                     });
+                    $("#listInspectionCheck").empty().append(temp);
                     
                     var options = {
                         numberOfPages: 6,
@@ -515,7 +529,7 @@
                 else {
                     $("#totalDataCount,#totalPageCount").text("0");
                     var noData = "<h3>没有数据！</h3>";
-                    $("#tableList").empty().append(noData);
+                    $("#listInspectionCheck").empty().append(noData);
                     $('#pageList').empty();
                 }
             });
@@ -551,13 +565,26 @@
 
         //查询按钮
         $("#btnSearch").click(function () {
-            getList(1, $("#ddlPageSize").val());
+            var disposeDateStart = $("#tbxDisposeDateStart").val();
+            var disposeDateEnd = $("#tbxDisposeDateEnd").val();
+            if (disposeDateEnd != ""||disposeDateStart!="") {
+                if (CompareDate(disposeDateStart, disposeDateEnd)) {
+                    getList(1, $("#ddlPageSize").val());
+                }
+                else
+                {
+                    toastr.error("日期范围必须填写完整，结束日期必须大于开始日期！", "提示");
+                }
+            }
+            else
+            {
+                getList(1, $("#ddlPageSize").val());
+            }
         });
 
         //重置按钮
         $("#btnRefresh").click(function () {
-            $("#tbxProductName").val("");
-            $("#tbxInspectionDate").val("");
+            $("#tbxProductName,#tbxInspectionNumSearch,#tbxProductBatchNum,#tbxDisposeDateStart,#tbxDisposeDateEnd,#ddlInspectionDept").val("");
             getList(1, $("#ddlPageSize").val());
         });
 
@@ -567,10 +594,10 @@
             var args = {
                 "id": infoID
             };
-            $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
+            $.post("/Check/GetCheckedInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
                 $('#detailModal').modal('show');
                 var inspectionDeptList = result["inspectionDeptList"];
-                var inspectionInfo = result["inspectionInfo"];
+                var inspectionInfo = result["inspectionInfo"][0];
 
                 $("#detailModal-label").text(inspectionInfo.ProductName);
 
@@ -587,9 +614,12 @@
                 $("#lblDetailProductCount").text("到货数量：" + inspectionInfo.ProductCount);
                 $("#lblDetailSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
 
-                $("#lblDetailInspectionDatePerson").text("报检：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | " + getJsonDate(inspectionInfo.InspectionDate));
-                $("#lblDetailDisposeDatePerson").text("接收：" + inspectionInfo.DisposePersonName + " | " + getJsonDateTime(inspectionInfo.DisposeDate));
+                $("#lblDetailInspectionPerson").text("报检人：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | 电话：" + inspectionInfo.UserPhone);
+                $("#lblDetailDisposePerson").text("接收人：" + inspectionInfo.DisposePersonName + " | 电话：" + inspectionInfo.disposePersonPhone);
                
+                $("#lblDetailInspectionDate").text("报检日期："+getJsonDate(inspectionInfo.InspectionDate));
+                $("#lblDetailDisposeDate").text("接收时间："+ getJsonDateTime(inspectionInfo.DisposeDate));
+
                 $("#lblDetailRemark").text("备注：" + inspectionInfo.DisposeRemark);
 
                 var deptLi = "";

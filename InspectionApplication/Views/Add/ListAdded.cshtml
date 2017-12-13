@@ -26,8 +26,7 @@
                         <h3 id="lblProductBatchNum"></h3>
                         <h3 id="lblSamplePlace"></h3>
                         <h3 id="lblProductCount"></h3>
-                        <h3 id="lblInspectionDate"></h3>
-                        <h3 id="lblInspectionPersonName"></h3>
+                        <h3 id="lblInspectionInfo"></h3>
                     </div>
                 </div>
                 <div class="row">
@@ -318,7 +317,7 @@
             $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
                 $("#detailModal").modal("show");
                 var inspectionDeptList = result["inspectionDeptList"];
-                var inspectionInfo = result["inspectionInfo"];
+                var inspectionInfo = result["inspectionInfo"][0];
 
                 var inspectionNum = inspectionInfo.InspectionApplicationNum == null ? "" : inspectionInfo.InspectionApplicationNum;
                 $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
@@ -332,8 +331,7 @@
                 $("#lblProductFactory").text("生产厂家：" + inspectionInfo.ProductFactory);
                 $("#lblProductType").text("产品型号：" + inspectionInfo.ProductType);
                 $("#lblProductCount").text("到货数量：" + inspectionInfo.ProductCount);
-                $("#lblInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
-                $("#lblInspectionPersonName").text("报检人：" + inspectionInfo.InspectionPersonName);
+                $("#lblInspectionInfo").text("报检："+inspectionInfo.InspectionPersonName+" | " + getJsonDate(inspectionInfo.InspectionDate));
                 $("#lblSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
 
                 var mark = inspectionInfo.DisposeRemark == null ? "" : inspectionInfo.DisposeRemark;

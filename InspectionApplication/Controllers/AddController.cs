@@ -286,10 +286,39 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             {
                 var postList =
    JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
-
                 var id = 0;
                 int.TryParse(postList["id"].ToString(), out id);
-                var inspectionInfo = db.InspectionApplications.Find(id);
+                var inspectionInfo = from i in db.InspectionApplications
+                                     join u in db.UserInfo on i.InspectionPersonID equals u.UserID
+                                     where i.InspectionApplicationID==id
+                                     select new
+                                     {
+                                         i.ArrivalDate,
+                                         i.DisposeDate,
+                                         i.DisposePersonID,
+                                         i.DisposePersonName,
+                                         i.DisposeRemark,
+                                         i.InputDate,
+                                         i.InspectionApplicationID,
+                                         i.InspectionApplicationNum,
+                                         i.InspectionApplicationState,
+                                         i.InspectionDate,
+                                         i.InspectionDeptID,
+                                         i.InspectionDeptName,
+                                         i.InspectionFartherDeptID,
+                                         i.InspectionFatherDeptName,
+                                         i.InspectionPersonID,
+                                         i.InspectionPersonName,
+                                         i.ProductBatchNum,
+                                         i.ProductCount,
+                                         i.ProductDealer,
+                                         i.ProductFactory,
+                                         i.ProductName,
+                                         i.ProductPackingType,
+                                         i.ProductType,
+                                         i.SamplePlace,
+                                         u.UserPhone,
+                                     };
 
                 var inspectionDeptList = from d in db.ProductUseDept
                                          join p in db.DeptInfo on d.ProductUseFatherDeptID equals p.DeptID

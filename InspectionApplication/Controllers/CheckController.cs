@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web;
@@ -32,6 +33,7 @@ namespace InspectionApplication.Controllers
             try
             {
                 var result = from i in db.InspectionApplications
+                             join u in db.UserInfo on i.InspectionPersonID equals u.UserID
                              where i.InspectionApplicationState== "待审核"
                              orderby i.InputDate descending
                              select new {
@@ -41,7 +43,8 @@ namespace InspectionApplication.Controllers
                                  i.InspectionDate,
                                  i.ProductBatchNum,
                                  i.ProductType,
-                                 i.InspectionApplicationID
+                                 i.InspectionApplicationID,
+                                 u.UserPhone
                              };
                 return Json(result);
             }
@@ -51,12 +54,66 @@ namespace InspectionApplication.Controllers
             }
         }
 
-        //获取报检单详细信息
-        public JsonResult GetNoCheckDetail()
+        //根据报检单ID获取已接收报检单详细信息
+        public JsonResult GetCheckedInspectionDetail()
         {
             try
             {
-                return Json("");
+                var postList =
+   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var id = 0;
+                int.TryParse(postList["id"].ToString(), out id);
+                var inspectionInfo = from i in db.InspectionApplications
+                                     join u in db.UserInfo on i.InspectionPersonID equals u.UserID
+                                     join d in db.UserInfo on i.DisposePersonID equals d.UserID
+                                     where i.InspectionApplicationID == id&i.InspectionApplicationState== "审核通过"
+                                     select new
+                                     {
+                                         i.ArrivalDate,
+                                         i.DisposeDate,
+                                         i.DisposePersonID,
+                                         i.DisposePersonName,
+                                         i.DisposeRemark,
+                                         i.InputDate,
+                                         i.InspectionApplicationID,
+                                         i.InspectionApplicationNum,
+                                         i.InspectionApplicationState,
+                                         i.InspectionDate,
+                                         i.InspectionDeptID,
+                                         i.InspectionDeptName,
+                                         i.InspectionFartherDeptID,
+                                         i.InspectionFatherDeptName,
+                                         i.InspectionPersonID,
+                                         i.InspectionPersonName,
+                                         i.ProductBatchNum,
+                                         i.ProductCount,
+                                         i.ProductDealer,
+                                         i.ProductFactory,
+                                         i.ProductName,
+                                         i.ProductPackingType,
+                                         i.ProductType,
+                                         i.SamplePlace,
+                                         u.UserPhone,
+                                         disposePersonPhone = d.UserPhone
+                                     };
+
+                var inspectionDeptList = from d in db.ProductUseDept
+                                         join p in db.DeptInfo on d.ProductUseFatherDeptID equals p.DeptID
+                                         join c in db.DeptInfo on d.ProductUseDeptID equals c.DeptID
+                                         where d.InspectionApplicationID == id
+                                         select new
+                                         {
+                                             d.ProductUseDeptInfoID,
+                                             d.ProductUseFatherDeptID,
+                                             d.ProductUseDeptID,
+                                             fatherName = p.DeptName,
+                                             childName = c.DeptName
+                                         };
+                Dictionary<string, object> infoList = new Dictionary<string, object>();
+                infoList.Add("inspectionInfo", inspectionInfo);
+                infoList.Add("inspectionDeptList", inspectionDeptList);
+                return Json(infoList);
             }
             catch (Exception ex)
             {
@@ -147,15 +204,66 @@ namespace InspectionApplication.Controllers
                 int.TryParse(postList["pageSize"].ToString(), out pageSize);
 
                 var productName = postList["productName"].ToString();//产品名称
-                //var inspectionDate = postList["inspectionDate"].ToString();//报检时间
+                var inspectionNum = postList["inspectionNum"].ToString();//报检单编号
+                var productBatchNum = postList["productBatchNum"].ToString();//产品批号
+                var inspectionDept = 0;
+                int.TryParse(postList["inspectionDept"].ToString(),out inspectionDept);//报检单位
+
+                var disposeDateStart= postList["disposeDateStart"].ToString();//接收日期开始
+                var disposeDateEnd = postList["disposeDateEnd"].ToString();//接收日期结束
 
                 var result = from i in db.InspectionApplications
+                             join u in db.UserInfo on i.InspectionPersonID equals u.UserID
                              where i.InspectionApplicationState == "审核通过"
-                             select i;
+                             select new {
+                                 i.ArrivalDate,
+                                 i.DisposeDate,
+                                 i.DisposePersonID,
+                                 i.DisposePersonName,
+                                 i.DisposeRemark,
+                                 i.InputDate,
+                                 i.InspectionApplicationID,
+                                 i.InspectionApplicationNum,
+                                 i.InspectionApplicationState,
+                                 i.InspectionDate,
+                                 i.InspectionDeptID,
+                                 i.InspectionDeptName,
+                                 i.InspectionFartherDeptID,
+                                 i.InspectionFatherDeptName,
+                                 i.InspectionPersonID,
+                                 i.InspectionPersonName,
+                                 i.ProductBatchNum,
+                                 i.ProductCount,
+                                 i.ProductDealer,
+                                 i.ProductFactory,
+                                 i.ProductName,
+                                 i.ProductPackingType,
+                                 i.ProductType,
+                                 i.SamplePlace,
+                                 u.UserPhone
+                             };
 
                 if (!string.IsNullOrEmpty(productName))
                 {
                     result = result.Where(w => w.ProductName.Contains(productName));
+                }
+                if (!string.IsNullOrEmpty(inspectionNum))
+                {
+                    result = result.Where(w => w.InspectionApplicationNum.Contains(inspectionNum));
+                }
+                if (!string.IsNullOrEmpty(productBatchNum))
+                {
+                    result = result.Where(w => w.ProductBatchNum.Contains(productBatchNum));
+                }
+                if (inspectionDept!=0)
+                {
+                    result = result.Where(w => w.InspectionFartherDeptID==inspectionDept);
+                }
+                if (!string.IsNullOrEmpty(disposeDateStart)&!string.IsNullOrEmpty(disposeDateEnd))
+                {
+                    var dateStart = Convert.ToDateTime(disposeDateStart);
+                    var dateEnd = Convert.ToDateTime(disposeDateEnd);
+                    result = result.Where(w=>DbFunctions.DiffDays(w.DisposeDate, dateStart) <= 0 &&DbFunctions.DiffDays(w.DisposeDate, dateEnd) >= 0);
                 }
                 //if (!string.IsNullOrEmpty(inspectionDate))
                 //{
@@ -212,6 +320,7 @@ namespace InspectionApplication.Controllers
         {
             try
             {
+                var userInfo = Session["user"] as Models.UserInfo;
                 var postList =
   JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
 
@@ -223,9 +332,12 @@ namespace InspectionApplication.Controllers
                 var remarkOld = inspectionInfo.DisposeRemark;
 
                 inspectionInfo.DisposeRemark = remarkOld + remark;//回退的原因要加上报检单原来的备注信息。
+                inspectionInfo.DisposePersonID = userInfo.UserID;
+                inspectionInfo.DisposeDate = DateTime.Now;
+                inspectionInfo.DisposePersonName = userInfo.UserName;
                 inspectionInfo.InspectionApplicationState = "审核回退";
 
-                var userInfo = Session["user"] as Models.UserInfo;
+                
                 Models.Log log = new Models.Log();
                 log.LogInfo = "用户【" + userInfo.UserName + "】将编号为【" + inspectionInfo.InspectionApplicationNum + "】的报检单进行回退操作";
                 log.LogInputDate = DateTime.Now;
