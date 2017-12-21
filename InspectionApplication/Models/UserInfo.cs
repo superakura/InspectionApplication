@@ -22,7 +22,6 @@ namespace InspectionApplication.Models
         [StringLength(20)]
         public string UserName { get; set; }//用户姓名
 
-        [Required]
         [StringLength(100)]
         public string UserPassword { get; set; }//用户密码
 

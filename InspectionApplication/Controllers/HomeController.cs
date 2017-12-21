@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -67,11 +69,11 @@ namespace InspectionApplication.Controllers
                         }
                         #endregion
                         //加true，进行测试用，上线后删除true
-                        if (isRight == "1"||true)
+                        if (isRight == "1" || true)
                         {
                             #region 写入权限，登录转跳
                             FormsAuthenticationTicket authTicket =
-                                new FormsAuthenticationTicket(1,userID,DateTime.Now,DateTime.Now.AddMinutes(20),false,userInfo.UserRole);
+                                new FormsAuthenticationTicket(1, userID, DateTime.Now, DateTime.Now.AddMinutes(20), false, userInfo.UserRole);
 
                             string encryptedTicket = FormsAuthentication.Encrypt(authTicket);
 
@@ -166,10 +168,10 @@ namespace InspectionApplication.Controllers
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
-                        MenuName = "报检单统计",
+                        MenuName = "操作日志",
                         MenuIcon = "glyphicon glyphicon-list-alt",
-                        MenuController = "Check",
-                        MenuAction = "IndexStatistic"
+                        MenuController = "Home",
+                        MenuAction = "LogInfo"
                     });
                     break;
                 case "系统管理员":
@@ -182,10 +184,10 @@ namespace InspectionApplication.Controllers
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
-                        MenuName = "报检单统计",
+                        MenuName = "操作日志",
                         MenuIcon = "glyphicon glyphicon-list-alt",
-                        MenuController = "Check",
-                        MenuAction = "IndexStatistic"
+                        MenuController = "Home",
+                        MenuAction = "LogInfo"
                     });
                     userMenu.Add(new Models.ViewMenu
                     {
@@ -204,10 +206,71 @@ namespace InspectionApplication.Controllers
         {
             var list = db.DeptInfo
                 .Where(w => w.DeptFatherID == 1)
-                .OrderBy(o=>o.DeptOrder)
-                .Select(s=>new {s.DeptID,s.DeptName})
+                .OrderBy(o => o.DeptOrder)
+                .Select(s => new { s.DeptID, s.DeptName })
                 .ToList();
             return Json(list);
+        }
+
+        //加载日志信息视图页
+        public ViewResult LogInfo()
+        {
+            return View();
+        }
+
+        //获取日志信息分页列表
+        public JsonResult GetLogList()
+        {
+            try
+            {
+                var postList =
+       JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+
+                var curPage = 0;
+                int.TryParse(postList["curPage"].ToString(), out curPage);
+
+                var pageSize = 0;
+                int.TryParse(postList["pageSize"].ToString(), out pageSize);
+
+                var logType = postList["logType"].ToString();//日志类型
+                var logInputDateString = postList["logInputDate"].ToString();//日志录入日期
+                var logPersonID = 0;
+                int.TryParse(postList["logPersonID"].ToString(), out logPersonID);//日志人员ID
+
+                var result = from l in db.Log
+                             join u in db.UserInfo on l.LogInputPerson equals u.UserID
+                             select new
+                             {
+                                 l.LogID,
+                                 l.LogInfo,
+                                 l.LogInputDate,
+                                 l.LogType,
+                                 l.LogInputPerson,
+                                 u.UserName
+                             };
+
+                if (!string.IsNullOrEmpty(logType))
+                {
+                    result = result.Where(w => w.LogType.Contains(logType));
+                }
+                if (logPersonID != 0)
+                {
+                    result = result.Where(w => w.LogInputPerson == logPersonID);
+                }
+                if (!string.IsNullOrEmpty(logInputDateString))
+                {
+                    var logInputDate = Convert.ToDateTime(logInputDateString);
+                    result = result.Where(w => DbFunctions.DiffDays(w.LogInputDate, logInputDate)== 0);
+                }
+                Dictionary<string, object> infoList = new Dictionary<string, object>();
+                infoList.Add("count", result.Count());
+                infoList.Add("infoList", result.OrderByDescending(o => o.LogInputDate).Take(pageSize * curPage).Skip(pageSize * (curPage - 1)).ToList());
+                return Json(infoList);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
     }
 }

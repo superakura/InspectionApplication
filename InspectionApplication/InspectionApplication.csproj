@@ -44,6 +44,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aspose.Cells">
+      <HintPath>..\..\源代码&amp;控件&amp;开发库\Aspose.Cells.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -134,6 +137,7 @@
     <Content Include="Scripts\bootstrap-datetimepicker.zh-CN.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="ExcelTemplate\ExportStatistic.xls" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -200,6 +204,10 @@
     <Compile Include="Migrations\201712070213097_edit9.Designer.cs">
       <DependentUpon>201712070213097_edit9.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201712210547218_edit10.cs" />
+    <Compile Include="Migrations\201712210547218_edit10.Designer.cs">
+      <DependentUpon>201712210547218_edit10.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\Log.cs" />
@@ -224,6 +232,7 @@
     <Content Include="Views\Check\IndexList.cshtml" />
     <Content Include="Views\Check\IndexStatistic.cshtml" />
     <Content Include="Views\User\List.cshtml" />
+    <Content Include="Views\Home\LogInfo.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -233,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="ExcelOutPut\" />
     <Folder Include="Views\Dept\" />
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +275,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201712070213097_edit9.resx">
       <DependentUpon>201712070213097_edit9.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712210547218_edit10.resx">
+      <DependentUpon>201712210547218_edit10.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

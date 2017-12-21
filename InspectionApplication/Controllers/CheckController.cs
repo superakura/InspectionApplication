@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Aspose.Cells;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Linq;
@@ -353,6 +355,109 @@ namespace InspectionApplication.Controllers
             {
                 return ex.Message;
             }
+        }
+
+        //获取报检单统计表，根据接收日期范围
+        public FileResult InspectionToExcel()
+        {
+            var dateBeginRequest = Request["dateBegin"].ToString();
+            var dateEndRequest = Request["dateEnd"].ToString();
+            var dateBegin =Convert.ToDateTime(dateBeginRequest);
+            var dateEnd =Convert.ToDateTime(dateEndRequest);
+
+            var result = (from i in db.InspectionApplications
+                         join u in db.UserInfo on i.InspectionPersonID equals u.UserID
+                         where i.InspectionApplicationState == "审核通过"&
+                         DbFunctions.DiffDays(i.DisposeDate, dateBegin) <= 0 &
+                         DbFunctions.DiffDays(i.DisposeDate, dateEnd) >= 0
+                         select new
+                         {
+                             i.ArrivalDate,
+                             i.DisposeDate,
+                             i.DisposePersonID,
+                             i.DisposePersonName,
+                             i.DisposeRemark,
+                             i.InputDate,
+                             i.InspectionApplicationID,
+                             i.InspectionApplicationNum,
+                             i.InspectionApplicationState,
+                             i.InspectionDate,
+                             i.InspectionDeptID,
+                             i.InspectionDeptName,
+                             i.InspectionFartherDeptID,
+                             i.InspectionFatherDeptName,
+                             i.InspectionPersonID,
+                             i.InspectionPersonName,
+                             i.ProductBatchNum,
+                             i.ProductCount,
+                             i.ProductDealer,
+                             i.ProductFactory,
+                             i.ProductName,
+                             i.ProductPackingType,
+                             i.ProductType,
+                             i.SamplePlace,
+                             u.UserPhone
+                         }).ToList();
+
+            var filename = "报检单统计信息"+dateBeginRequest+"--"+dateEndRequest;
+            WorkbookDesigner designer = new WorkbookDesigner();
+            string path = System.IO.Path.Combine(Server.MapPath("/"), "ExcelTemplate/ExportStatistic.xls");
+            designer.Open(path);
+
+            DataTable dt = new DataTable();
+            dt.TableName = "P";
+
+            dt.Columns.Add("Index");
+            dt.Columns.Add("InspectionApplicationNum");
+            dt.Columns.Add("ProductName");
+            dt.Columns.Add("ProductFactory");
+            dt.Columns.Add("ProductDealer");
+            dt.Columns.Add("ProductPackingType");
+            dt.Columns.Add("ProductBatchNum");
+            dt.Columns.Add("ProductType");
+            dt.Columns.Add("ProductCount");
+            dt.Columns.Add("SamplePlace");
+            dt.Columns.Add("ArrivalDate");
+            dt.Columns.Add("InspectionDate");
+            dt.Columns.Add("InspectionFatherDeptName");
+            dt.Columns.Add("UserPhone");
+            dt.Columns.Add("DisposePersonName");
+            dt.Columns.Add("DisposeDate");
+            dt.Columns.Add("DisposeRemark");
+
+            foreach (var info in result)
+            {
+                DataRow dr = dt.NewRow();
+                var index = result.IndexOf(info);
+                dr["Index"] = (index + 1);
+                dr["InspectionApplicationNum"] = info.InspectionApplicationNum;
+                dr["ProductName"] = info.ProductName;
+                dr["ProductFactory"] = info.ProductFactory;
+                dr["ProductDealer"] = info.ProductDealer;
+                dr["ProductPackingType"] = info.ProductPackingType;
+                dr["ProductBatchNum"] = info.ProductBatchNum;
+                dr["ProductType"] = info.ProductType;
+                dr["ProductCount"] = info.ProductCount;
+                dr["SamplePlace"] = info.SamplePlace;
+                dr["ArrivalDate"] = info.ArrivalDate.ToShortDateString();
+                dr["InspectionDate"] = info.InspectionDate.ToShortDateString();
+                dr["InspectionFatherDeptName"] = info.InspectionFatherDeptName;
+                dr["UserPhone"] = info.UserPhone;
+                dr["DisposePersonName"] = info.DisposePersonName;
+                dr["DisposeDate"] = info.DisposeDate.ToString();
+                dr["DisposeRemark"] = info.DisposeRemark;
+                dt.Rows.Add(dr);
+            }
+            designer.SetDataSource(dt);
+
+            designer.Process();
+            string fileToSave = System.IO.Path.Combine(Server.MapPath("/"), "ExcelOutPut/" + filename + ".xls");
+            if (System.IO.File.Exists(fileToSave))
+            {
+                System.IO.File.Delete(fileToSave);
+            }
+            designer.Save(fileToSave, FileFormatType.Excel97To2003);
+            return File(fileToSave, "application/vnd.ms-excel", filename + ".xls");
         }
     }
 }

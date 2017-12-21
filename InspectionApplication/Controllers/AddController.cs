@@ -12,12 +12,14 @@ namespace InspectionApplication.Controllers
     {
         private Models.DbContext db = new Models.DbContext();
 
+        //我的报检单视图
         public ActionResult ListAdded()
         {
             ViewBag.Title = "我的报检单";
             return View();
         }
 
+        //添加报检单视图
         public ViewResult MaterialList()
         {
             ViewBag.Title = "添加报检单";

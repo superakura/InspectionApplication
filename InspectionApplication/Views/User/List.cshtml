@@ -1,8 +1,365 @@
 ﻿
 @{
-    ViewBag.Title = "List";
+    ViewBag.Title = "用户管理";
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
-
+<div class="modal fade" id="adminEditModal" tabindex="-1" role="dialog" aria-labelledby="adminEditModal-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="adminEditModal-label"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="userEditForm" role="form">
+                    <div class="form-group">
+                        <label class="control-label" for="tbxUserName"><span class="text-danger">(*)</span>姓名</label>
+                        <input type="text" class="form-control" id="tbxUserName" name="tbxUserName" placeholder="请输入员工姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="tbxUserNum"><span class="text-danger">(*)</span>员工编号</label>
+                        <input type="text" class="form-control" id="tbxUserNum" name="tbxUserNum" placeholder="请输入员工编号">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="tbxUserPhone"><span class="text-danger">(*)</span>电话</label>
+                        <input type="text" class="form-control" id="tbxUserPhone" name="tbxUserPhone" placeholder="请输入员工电话">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="ddlDeptFather">分厂</label>
+                        <select id="ddlDeptFather" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="ddlDeptChild">车间</label>
+                        <select id="ddlDeptChild" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="ddlUserRole">权限</label>
+                        <select id="ddlUserRole" class="form-control">
+                            <option value="报检单申请">报检单申请</option>
+                            <option value="报检单审批">报检单审批</option>
+                            <option value="系统管理员">系统管理员</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="tbxUserRemark">备注</label>
+                        <textarea id="tbxUserRemark" rows="3" class="form-control" cols="20"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span id="userID" class="hidden"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="btnSubmit">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
 <h2>用户管理</h2>
 
+<div class="form-inline">
+    <button type="button" class="btn btn-success" id="btnAddUser"><span class="glyphicon glyphicon-plus"></span> 添加用户</button>
+    <div class="form-group">
+        <label for="tbxUserNameSearch">姓名</label>
+        <input type="text" class="form-control" id="tbxUserNameSearch">
+    </div>
+    <div class="form-group">
+        <label for="tbxUserNumSearch">员工编号</label>
+        <input type="text" class="form-control" id="tbxUserNumSearch">
+    </div>
+    <div class="form-group">
+        <label for="ddlDeptFatherSearch">分厂</label>
+        <select class="form-control" id="ddlDeptFatherSearch">
+            <option value="">全部</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ddlUserRoleSearch">权限</label>
+        <select class="form-control" id="ddlUserRoleSearch">
+            <option value="">全部</option>
+            <option value="报检单申请">报检单申请</option>
+            <option value="报检单审批">报检单审批</option>
+            <option value="系统管理员">系统管理员</option>
+        </select>
+    </div>
+    <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
+    <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+</div>
+<br />
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr class="success">
+            <th>序号</th>
+            <th>员工编号</th>
+            <th>姓名</th>
+            <th>部门</th>
+            <th>电话</th>
+            <th>权限</th>
+            <th>备注</th>
+            <th class="text-center">操作</th>
+        </tr>
+    </thead>
+    <tbody id="tableInfo"></tbody>
+</table>
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="form-inline">
+            <div class="form-group">
+                共<span id="totalPageCount"></span>页 |
+                <span id="totalDataCount"></span>条数据
+                每页<select id="ddlPageSize" class="form-control">
+                    <option value="5">5</option>
+                    <option selected value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>项
+            </div>
+            <div class="form-group">
+                <ul id="pageList" style="padding-top:5px;"></ul>
+            </div>
+            <div class="input-group col-md-1 col-lg-1">
+                <input id="tbxCurPage" value="1" maxlength="7" size="2" class="form-control text-center" type="text" placeholder="">
+                <span class="input-group-btn">
+                    <button id="goPage" class="btn btn-primary" type="button">
+                        转到
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //加载搜索表单中的二级单位
+    LoadSearchFatherDept();
+    function LoadSearchFatherDept() {
+        $.post("/Home/GetFatherDept", "", function (result) {
+            var temp = "";
+            $.each(result, function (indexInArray, valueOfElement) {
+                temp += "<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>";
+            });
+            $("#ddlDeptFatherSearch,#ddlDeptFather").empty().append(temp);
+            $("#ddlDeptFatherSearch").prepend("<option value=''>全部</option>");
+        });
+    }
+
+    //加载添加、编辑表单中的二级单位信息、根据二级单位加载三级单位
+    function LoadFormFatherDept() {
+        $.post("/Dept/GetFatherDept", "", function (result) {
+            $("#ddlDeptFather").empty();
+            $.each(result, function (indexInArray, valueOfElement) {
+                $("#ddlDeptFather").append("<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>");
+            });
+            GetChildDept($("#ddlDeptFather:eq(0)").val());
+        });
+    };
+    $("#ddlDeptFather").change(function () {
+        var deptID = $(this).val();
+        GetChildDept(deptID);
+    });
+    function GetChildDept(deptFatherID) {
+        var args = { "deptFatherID": deptFatherID };
+        $.post("/Dept/GetChildDept", encodeURIComponent(JSON.stringify(args)), function (result) {
+            $("#ddlDeptChild").empty();
+            $.each(result, function (indexInArray, valueOfElement) {
+                $("#ddlDeptChild").append("<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>");
+            });
+        });
+    }
+
+    //重置添加、修改用户信息表单
+    function ClearInfo() {
+        $("#tbxUserName,#tbxUserNum,#tbxUserPhone,#tbxUserRemark").val("");
+        $("#ddlUserRole").get(0).selectedIndex = 0;
+        $("label.error").hide();
+        $(".error").removeClass("error");
+        $("#userID").text("");
+    };
+
+    //加载员工列表
+    getList(1, $("#ddlPageSize").val());
+    function getList(curPage, pageSize) {
+        var userName = $("#tbxUserNameSearch").val();
+        var userNum = $("#tbxUserNumSearch").val();
+        var userDeptFatherID = $("#ddlDeptFatherSearch").val();
+        var userRole = $("#ddlUserRoleSearch").val();
+
+        var args = {
+            "curPage": curPage,
+            "pageSize": pageSize,
+            "userName": userName,
+            "userNum": userNum,
+            "userDeptFatherID": userDeptFatherID,
+            "userRole": userRole
+        };
+        $.post("/User/GetCheckList", encodeURIComponent(JSON.stringify(args)), function (result) {
+            var listInfo = result["infoList"];//数据列表
+            var count = result["count"];//数据个数
+            if (listInfo.length != 0) {
+                var totalPageCount;//总页数
+                if (count % pageSize != 0) {
+                    totalPageCount = count / pageSize + 1;
+                }
+                else {
+                    totalPageCount = count / pageSize;
+                }
+
+                $("#totalPageCount").text(parseInt(totalPageCount));
+                $("#totalDataCount").text(count);
+
+                var temp = "";
+                $.each(listInfo, function (indexInArray, valueOfElement) {
+                    var remark = valueOfElement.UserRemark == null ? "" : valueOfElement.UserRemark;
+                    temp += "<tr>";
+                    temp += "<td>" + (indexInArray + 1) + "</td>";
+                    temp += "<td>" + valueOfElement.UserNum + "</td>";
+                    temp += "<td>" + valueOfElement.UserName + "</td>";
+                    temp += "<td>" + valueOfElement.fatherDeptName + "--" + valueOfElement.DeptName + "</td>";
+                    temp += "<td>" + valueOfElement.UserPhone + "</td>";
+                    temp += "<td>" + valueOfElement.UserRole + "</td>";
+                    temp += "<td>" + remark + "</td>";
+                    temp += "<td class='text-center'><a href='javascript:void(0)' class='btnEdit' data-uid='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-edit'></i> 编辑</a>";
+                    temp += "&nbsp;&nbsp;&nbsp;&nbsp;";
+                    temp += "<a href='javascript:void(0)' class='btnDel' data-uid='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-remove'></i> 删除</a></td>";
+                    temp += "</tr>";
+
+                });
+                $("#tableInfo").empty().append(temp);
+
+                var options = {
+                    numberOfPages: 6,
+                    bootstrapMajorVersion: 3,
+                    currentPage: curPage,
+                    totalPages: totalPageCount,
+                    useBootstrapTooltip: false,
+                    itemTexts: function (type, page, current) {
+                        switch (type) {
+                            case "first":
+                                return "首页";
+                            case "prev":
+                                return "上一页";
+                            case "next":
+                                return "下一页";
+                            case "last":
+                                return "尾页";
+                            case "page":
+                                return page;
+                        }
+                    },
+                    alignment: 'right',
+                    tooltipTitles: function (type, page, current) {
+                    },
+                    onPageClicked: function (event, originalEvent, type, page) {
+                        getList(page, pageSize);
+                        $("#tbxCurPage").val(page);
+                    }
+                }
+                $('#pageList').bootstrapPaginator(options);
+            }
+            else {
+                $("#totalDataCount,#totalPageCount").text("0");
+                var noData = "<tr><td colspan=8 class='text-center'>没有数据！</td></tr>";
+                $("#tableInfo").empty().append(noData);
+                $('#pageList').empty();
+            }
+        });
+    }
+    $("#ddlPageSize").change(function () {
+        $("#tbxCurPage").val("1");
+        getList(1, $("#ddlPageSize").val());
+    });
+    $("#goPage").click(function () {
+        if ($("#tbxCurPage").val() == "") {
+            toastr["warning"]("页码不能为空", "提示");
+        }
+        else {
+            var r = /^[0-9]*[1-9][0-9]*$/
+            if (r.test($("#tbxCurPage").val())) {
+                var goPageNum = parseInt($("#tbxCurPage").val());
+                var totalPage = parseInt($("#totalPageCount").html());
+                if (goPageNum >= 1 && goPageNum <= totalPage) {
+                    getList(goPageNum, $("#ddlPageSize").val());
+                    $("#tbxCurPage").val(goPageNum);
+                }
+                else {
+                    toastr["warning"]("亲，页码超过范围！", "提示");
+                    $("#tbxCurPage").val("");
+                }
+            }
+            else {
+                toastr["warning"]("亲，只能填写数字！", "提示");
+                $("#tbxCurPage").val("");
+            }
+        }
+    });
+
+    //查询按钮
+    $("#btnSearch").click(function () {
+        getList(1, $("#ddlPageSize").val());
+    });
+
+    //重置按钮
+    $("#btnRefresh").click(function () {
+        $("#tbxUserNameSearch,#tbxUserNumSearch,#ddlDeptFatherSearch,#ddlUserRoleSearch").val("");
+        getList(1, $("#ddlPageSize").val());
+    });
+
+    //加载添加信息表单
+    $("#btnAddUser").click(function () {
+        $('#adminEditModal').modal('show');
+        $('#adminEditModal-label').text("添加用户信息");
+        LoadFormFatherDept();
+        ClearInfo();
+    });
+
+    //对人员表单进行前端验证
+    var valid = $("#userEditForm").validate({
+        rules: {
+            tbxUserName: { required: true, maxlength: 50 },
+            tbxUserNum: { required: true, maxlength: 10, number:true },
+            tbxUserPhone: { required: true, maxlength: 50 }
+        }
+    });
+
+    //添加、修改员工信息提交
+    $("#btnSubmit").click(function () {
+        if (valid.form()) {
+            Ewin.confirm({ message: "确认要提交吗？" }).on(function (e) {
+                if (!e) {
+                    return;
+                }
+                else {
+                    var useID = $("#userID").text();
+                    var userName = $("#tbxUserName").val();
+                    var userNum = $("#tbxUserNum").val();
+                    var userRemark = $("#tbxUserRemark").val();
+                    var userPhone = $("#tbxUserPhone").val();
+                    var userRole = $("#ddlUserRole").val();
+                    var userDeptID = $("#ddlDeptChild").val();
+
+                    var args = {
+                        "useID": useID,
+                        "userName": userName,
+                        "userNum": userNum,
+                        "userRemark": userRemark,
+                        "userPhone": userPhone,
+                        "userRole": userRole,
+                        "userDeptID": userDeptID
+                    };
+                    $.post("/User/EditByAdmin", encodeURIComponent(JSON.stringify(args)), function (result) {
+                        if (result == "ok") {
+                            $("#adminEditModal").modal("hide");
+                            toastr.success("提交成功！", "提示");
+                            getList(1, $("#ddlPageSize").val());
+                        }
+                        else {
+                            $("#adminEditModal").modal("hide");
+                            toastr.error("保存错误，请联系5613877！", "提示");
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    //删除员工信息
+</script>

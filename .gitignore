@@ -240,3 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/InspectionApplication/ExcelOutPut/报检单统计信息2017-12-05--2017-12-06.xls
+/InspectionApplication/ExcelOutPut/报检单统计信息2017-12-12--2017-12-14.xls
+/InspectionApplication/ExcelTemplate/ExportStatistic.xlsx

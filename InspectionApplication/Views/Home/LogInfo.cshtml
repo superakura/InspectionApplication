@@ -1,0 +1,224 @@
+﻿
+@{
+    ViewBag.Title = "操作日志信息";
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<h2>操作日志信息</h2>
+
+<div class="form-inline">
+    <div class="form-group">
+        <label for="tbxLogInputDate">操作日期</label>
+        <input type="text" readonly class="form-control" id="tbxLogInputDate">
+    </div>
+    <div class="form-group">
+        <label for="ddlLogPersonID">操作人员</label>
+        <select class="form-control" id="ddlLogPersonID">
+            <option value="">全部</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ddlInspectionDept">日志类型</label>
+        <select class="form-control" id="ddlLogType">
+            <option value="">全部</option>
+            <option value="修改报检单编号">修改报检单编号</option>
+            <option value="回退已接收报检单">回退已接收报检单</option>
+            <option value="删除用户信息">删除用户信息</option>
+        </select>
+    </div>
+    <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
+    <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+</div>
+<br />
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr class="success">
+            <th>序号</th>
+            <th>日志类型</th>
+            <th>日志信息</th>
+            <th>操作日期</th>
+            <th>操作人员</th>
+        </tr>
+    </thead>
+    <tbody id="tableInfo"></tbody>
+</table>
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="form-inline">
+            <div class="form-group">
+                共<span id="totalPageCount"></span>页 |
+                <span id="totalDataCount"></span>条数据
+                每页<select id="ddlPageSize" class="form-control">
+                    <option value="5">5</option>
+                    <option selected value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>项
+            </div>
+            <div class="form-group">
+                <ul id="pageList" style="padding-top:5px;"></ul>
+            </div>
+            <div class="input-group col-md-1 col-lg-1">
+                <input id="tbxCurPage" value="1" maxlength="7" size="2" class="form-control text-center" type="text" placeholder="">
+                <span class="input-group-btn">
+                    <button id="goPage" class="btn btn-primary" type="button">
+                        转到
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //日期比较，返回true、false
+    function CompareDate(d1, d2) {
+        return ((new Date(d1.replace(/-/g, "\/"))) <= (new Date(d2.replace(/-/g, "\/"))));
+    }
+
+    //初始化日期控件
+    $("#tbxLogInputDate").datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0,
+        format: 'yyyy-mm-dd'
+    });
+
+    //加载操作人员列表
+    GetLogPersonInfo();
+    function GetLogPersonInfo() {
+        $.post("/User/GetUserDropDownListInfo", null, function (data, textStatus, jqXHR) {
+            var temp = "";
+            $.each(data, function (indexInArray, valueOfElement) {
+                temp += "<option value=" + valueOfElement.UserID + ">" + valueOfElement.UserName + "</option>";
+            });
+            $("#ddlLogPersonID").append(temp);
+        });
+    };
+
+    //加载已处理的报检单
+    getList(1, $("#ddlPageSize").val());
+    function getList(curPage, pageSize) {
+        var logType = $("#ddlLogType").val();
+        var logInputDate = $("#tbxLogInputDate").val();
+        var logPersonID = $("#ddlLogPersonID").val();
+
+        var args = {
+            "curPage": curPage,
+            "pageSize": pageSize,
+            "logPersonID": logPersonID,
+            "logInputDate": logInputDate,
+            "logType": logType
+        };
+        $.post("/Home/GetLogList", encodeURIComponent(JSON.stringify(args)), function (result) {
+            var listInfo = result["infoList"];//数据列表
+            var count = result["count"];//数据个数
+            if (listInfo.length != 0) {
+                var totalPageCount;//总页数
+                if (count % pageSize != 0) {
+                    totalPageCount = count / pageSize + 1;
+                }
+                else {
+                    totalPageCount = count / pageSize;
+                }
+
+                $("#totalPageCount").text(parseInt(totalPageCount));
+                $("#totalDataCount").text(count);
+
+                var temp = "";
+                $.each(listInfo, function (indexInArray, valueOfElement) {
+                    temp += "<tr>";
+                    var logInputDate = getJsonDateTime(valueOfElement.LogInputDate);
+                    temp += "<td>" + (indexInArray + 1) + "</td>";
+                    temp += "<td>" + valueOfElement.LogType + "</td>";
+                    temp += "<td>" + valueOfElement.LogInfo + "</td>";
+                    temp += "<td>" + logInputDate + "</td>";
+                    temp += "<td>" + valueOfElement.UserName + "</td>";
+                    temp += "</tr>";
+
+                });
+                $("#tableInfo").empty().append(temp);
+
+                var options = {
+                    numberOfPages: 6,
+                    bootstrapMajorVersion: 3,
+                    currentPage: curPage,
+                    totalPages: totalPageCount,
+                    useBootstrapTooltip: false,
+                    itemTexts: function (type, page, current) {
+                        switch (type) {
+                            case "first":
+                                return "首页";
+                            case "prev":
+                                return "上一页";
+                            case "next":
+                                return "下一页";
+                            case "last":
+                                return "尾页";
+                            case "page":
+                                return page;
+                        }
+                    },
+                    alignment: 'right',
+                    tooltipTitles: function (type, page, current) {
+                    },
+                    onPageClicked: function (event, originalEvent, type, page) {
+                        getList(page, pageSize);
+                        $("#tbxCurPage").val(page);
+                    }
+                }
+                $('#pageList').bootstrapPaginator(options);
+            }
+            else {
+                $("#totalDataCount,#totalPageCount").text("0");
+                var noData = "<tr><td colspan=5 class='text-center'>没有数据！</td></tr>";
+                $("#tableInfo").empty().append(noData);
+                $('#pageList').empty();
+            }
+        });
+    }
+    $("#ddlPageSize").change(function () {
+        $("#tbxCurPage").val("1");
+        getList(1, $("#ddlPageSize").val());
+    });
+    $("#goPage").click(function () {
+        if ($("#tbxCurPage").val() == "") {
+            toastr["warning"]("页码不能为空", "提示");
+        }
+        else {
+            var r = /^[0-9]*[1-9][0-9]*$/
+            if (r.test($("#tbxCurPage").val())) {
+                var goPageNum = parseInt($("#tbxCurPage").val());
+                var totalPage = parseInt($("#totalPageCount").html());
+                if (goPageNum >= 1 && goPageNum <= totalPage) {
+                    getList(goPageNum, $("#ddlPageSize").val());
+                    $("#tbxCurPage").val(goPageNum);
+                }
+                else {
+                    toastr["warning"]("亲，页码超过范围！", "提示");
+                    $("#tbxCurPage").val("");
+                }
+            }
+            else {
+                toastr["warning"]("亲，只能填写数字！", "提示");
+                $("#tbxCurPage").val("");
+            }
+        }
+    });
+
+    //查询按钮
+    $("#btnSearch").click(function () {
+        getList(1, $("#ddlPageSize").val());
+    });
+
+    //重置按钮
+    $("#btnRefresh").click(function () {
+        $("#tbxLogInputDate,#ddlLogType,#ddlLogPersonID").val("");
+        getList(1, $("#ddlPageSize").val());
+    });
+</script>
