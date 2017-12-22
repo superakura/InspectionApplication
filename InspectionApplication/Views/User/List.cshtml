@@ -217,9 +217,9 @@
                     temp += "<td>" + valueOfElement.UserPhone + "</td>";
                     temp += "<td>" + valueOfElement.UserRole + "</td>";
                     temp += "<td>" + remark + "</td>";
-                    temp += "<td class='text-center'><a href='javascript:void(0)' class='btnEdit' data-uid='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-edit'></i> 编辑</a>";
+                    temp += "<td class='text-center'><a href='javascript:void(0)' class='btnEdit' data-id='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-edit'></i> 编辑</a>";
                     temp += "&nbsp;&nbsp;&nbsp;&nbsp;";
-                    temp += "<a href='javascript:void(0)' class='btnDel' data-uid='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-remove'></i> 删除</a></td>";
+                    temp += "<a href='javascript:void(0)' class='btnDel' data-name='" + valueOfElement.UserName + "' data-id='" + valueOfElement.UserID + "'><i class='glyphicon glyphicon-remove'></i> 删除</a></td>";
                     temp += "</tr>";
 
                 });
@@ -311,6 +311,36 @@
         ClearInfo();
     });
 
+    //加载员工信息编辑表单
+    $(document).on("click", ".btnEdit", function () {
+        $('#adminEditModal').modal('show');
+        $('#adminEditModal-label').text("编辑用户信息");
+        LoadFormFatherDept();
+        var infoID = $(this).attr("data-id");
+        var args = {
+            "id": infoID
+        };
+        $.post("/User/GetUserInfoByID", encodeURIComponent(JSON.stringify(args)), function (data) {
+            var result = data[0]; 
+            $("#tbxUserName").val(result.UserName);
+            $("#tbxUserNum").val(result.UserNum);
+            $("#tbxUserPhone").val(result.UserPhone);
+            $("#tbxUserRemark").val(result.UserRemark);
+            $("#ddlUserRole").val(result.UserRole);
+            $("#ddlDeptFather").val(result.DeptFatherID);
+            $("#userID").text(result.UserID);
+
+            var fatherID = { "deptFatherID": result.DeptFatherID };
+            $.post("/Dept/GetChildDept", encodeURIComponent(JSON.stringify(fatherID)), function (dept) {
+                $("#ddlDeptChild").empty();
+                $.each(dept, function (indexInArray, valueOfElement) {
+                    $("#ddlDeptChild").append("<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>");
+                });
+                $("#ddlDeptChild").val(result.UserDeptID);
+            });
+        });
+    });
+
     //对人员表单进行前端验证
     var valid = $("#userEditForm").validate({
         rules: {
@@ -362,4 +392,29 @@
     });
 
     //删除员工信息
+    $(document).on("click", ".btnDel", function () {
+        var infoID = $(this).attr("data-id");
+        var userName = $(this).attr("data-name");
+        var args = {
+            "id": infoID
+        };
+
+        Ewin.confirm({ message: "确认要删除员工【"+userName+"】吗？" }).on(function (e) {
+            if (!e) {
+                return;
+            }
+            else {
+                var args = { "id": infoID };
+                $.post("/User/Del", encodeURIComponent(JSON.stringify(args)), function (result) {
+                    if (result == "ok") {
+                        toastr.success("删除成功！", "提示");
+                        getList(1, $("#ddlPageSize").val());
+                    }
+                    else {
+                        toastr.error(result, "提示");
+                    }
+                });
+            }
+        });
+    });
 </script>
