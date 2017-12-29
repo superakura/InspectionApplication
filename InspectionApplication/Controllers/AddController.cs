@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace InspectionApplication.Controllers
 {
+    [Authorize(Roles = "报检单申请")]
     public class AddController : Controller
     {
         private Models.DbContext db = new Models.DbContext();

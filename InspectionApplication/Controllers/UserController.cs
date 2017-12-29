@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace InspectionApplication.Controllers
 {
+    [Authorize(Roles = "系统管理员")]
     public class UserController : Controller
     {
         private Models.DbContext db = new Models.DbContext();
@@ -141,31 +142,39 @@ namespace InspectionApplication.Controllers
                 var userPhone = infoList["userPhone"].ToString();
                 var userRole = infoList["userRole"].ToString();
 
-                if (userID==0)
+                var isOnlyUserNum = db.UserInfo.Where(w => w.UserNum == userNum).Count();
+                if (isOnlyUserNum==1)
                 {
-                    var userInfo = new Models.UserInfo();
-                    userInfo.UserName = userName;
-                    userInfo.UserRole = userRole;
-                    userInfo.UserPhone = userPhone;
-                    userInfo.UserNum = userNum;
-                    userInfo.UserRemark = userRemark;
-                    userInfo.UserDeptID = userdeptID;
-                    userInfo.UserState = 0;
-                    db.UserInfo.Add(userInfo);
-                    db.SaveChanges();
-                    return "ok";
+                    return "员工编号不能重复！";
                 }
                 else
                 {
-                    var userInfo = db.UserInfo.Find(userID);
-                    userInfo.UserName =userName;
-                    userInfo.UserRole = userRole;
-                    userInfo.UserPhone = userPhone;
-                    userInfo.UserNum = userNum;
-                    userInfo.UserRemark = userRemark;
-                    userInfo.UserDeptID = userdeptID;
-                    db.SaveChanges();
-                    return "ok";
+                    if (userID == 0)
+                    {
+                        var userInfo = new Models.UserInfo();
+                        userInfo.UserName = userName;
+                        userInfo.UserRole = userRole;
+                        userInfo.UserPhone = userPhone;
+                        userInfo.UserNum = userNum;
+                        userInfo.UserRemark = userRemark;
+                        userInfo.UserDeptID = userdeptID;
+                        userInfo.UserState = 0;
+                        db.UserInfo.Add(userInfo);
+                        db.SaveChanges();
+                        return "ok";
+                    }
+                    else
+                    {
+                        var userInfo = db.UserInfo.Find(userID);
+                        userInfo.UserName = userName;
+                        userInfo.UserRole = userRole;
+                        userInfo.UserPhone = userPhone;
+                        userInfo.UserNum = userNum;
+                        userInfo.UserRemark = userRemark;
+                        userInfo.UserDeptID = userdeptID;
+                        db.SaveChanges();
+                        return "ok";
+                    }
                 }
             }
             catch (Exception ex)

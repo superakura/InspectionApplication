@@ -17,8 +17,9 @@ namespace InspectionApplication.Controllers
 
         //登录页面
         [AllowAnonymous]
-        public ActionResult Login()
+        public ActionResult Login(string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -73,7 +74,7 @@ namespace InspectionApplication.Controllers
                         {
                             #region 写入权限，登录转跳
                             FormsAuthenticationTicket authTicket =
-                                new FormsAuthenticationTicket(1, userID, DateTime.Now, DateTime.Now.AddMinutes(20), false, userInfo.UserRole);
+                                new FormsAuthenticationTicket(1, userID, DateTime.Now, DateTime.Now.AddMinutes(1), false, userInfo.UserRole);
 
                             string encryptedTicket = FormsAuthentication.Encrypt(authTicket);
 
@@ -135,6 +136,7 @@ namespace InspectionApplication.Controllers
             return Redirect("/Home/Login");
         }
 
+        [Authorize]
         //加载菜单
         public PartialViewResult Menu()
         {
@@ -201,6 +203,7 @@ namespace InspectionApplication.Controllers
             return PartialView(userMenu);
         }
 
+        [Authorize]
         //加载二级单位
         public JsonResult GetFatherDept()
         {
@@ -212,12 +215,14 @@ namespace InspectionApplication.Controllers
             return Json(list);
         }
 
+        [Authorize(Roles = "报检单审批,系统管理员")]
         //加载日志信息视图页
         public ViewResult LogInfo()
         {
             return View();
         }
 
+        [Authorize(Roles = "报检单审批,系统管理员")]
         //获取日志信息分页列表
         public JsonResult GetLogList()
         {

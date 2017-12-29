@@ -188,7 +188,7 @@
             </div>
             <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"></span> 查询</button>
             <button type="button" class="btn btn-default" id="btnRefresh"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
-            <button type="button" class="btn btn-default" id="btnToExcel"><span class="glyphicon glyphicon-floppy-save"></span> 导出到Excel</button>
+            <button type="button" class="btn btn-default" id="btnToExcel"><span class="glyphicon glyphicon-floppy-save"></span> 导出统计表</button>
         </div>
         <br />
         <ul id="listInspectionCheck" class="list-unstyled"></ul>
@@ -257,7 +257,7 @@
         //首次加载待处理报检单
         LoadInspectionSubmit();
 
-        //每30秒调用刷新一次待处理的报检单列表
+        //每60秒调用刷新一次待处理的报检单列表
         setInterval(LoadInspectionSubmit, 1000 * 60);
 
         //获取待处理报检单列表--函数

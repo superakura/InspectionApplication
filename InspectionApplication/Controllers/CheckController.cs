@@ -11,6 +11,7 @@ using System.Web.Mvc;
 
 namespace InspectionApplication.Controllers
 {
+    [Authorize(Roles = "报检单审批,系统管理员")]
     public class CheckController : Controller
     {
         private Models.DbContext db = new Models.DbContext();
@@ -357,7 +358,7 @@ namespace InspectionApplication.Controllers
             }
         }
 
-        //获取报检单统计表，根据接收日期范围
+        //获取报检单统计表Excel，根据接收日期范围
         public FileResult InspectionToExcel()
         {
             var dateBeginRequest = Request["dateBegin"].ToString();
@@ -424,6 +425,7 @@ namespace InspectionApplication.Controllers
             dt.Columns.Add("DisposePersonName");
             dt.Columns.Add("DisposeDate");
             dt.Columns.Add("DisposeRemark");
+            dt.Columns.Add("UserDept");
 
             foreach (var info in result)
             {
@@ -446,11 +448,27 @@ namespace InspectionApplication.Controllers
                 dr["DisposePersonName"] = info.DisposePersonName;
                 dr["DisposeDate"] = info.DisposeDate.ToString();
                 dr["DisposeRemark"] = info.DisposeRemark;
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                var deptlist = from d in db.ProductUseDept
+                               where d.InspectionApplicationID == info.InspectionApplicationID
+                               join n in db.DeptInfo on d.ProductUseFatherDeptID equals n.DeptID
+                               join c in db.DeptInfo on d.ProductUseDeptID equals c.DeptID
+                               select new
+                               {
+                                   fatherDeptName=n.DeptName,
+                                   childDeptName=c.DeptName
+                               };
+                foreach (var item in deptlist)
+                {
+                    //Convert.ToChar(10)为Excel的换行符
+                    sb.Append(item.fatherDeptName+"--"+item.childDeptName+";"+Convert.ToChar(10));
+                }
+                dr["UserDept"] = sb.ToString();
                 dt.Rows.Add(dr);
             }
             designer.SetDataSource(dt);
-
             designer.Process();
+
             string fileToSave = System.IO.Path.Combine(Server.MapPath("/"), "ExcelOutPut/" + filename + ".xls");
             if (System.IO.File.Exists(fileToSave))
             {

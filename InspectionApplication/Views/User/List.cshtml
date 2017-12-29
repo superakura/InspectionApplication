@@ -307,6 +307,7 @@
     $("#btnAddUser").click(function () {
         $('#adminEditModal').modal('show');
         $('#adminEditModal-label').text("添加用户信息");
+        $("#tbxUserNum").removeAttr("readonly");
         LoadFormFatherDept();
         ClearInfo();
     });
@@ -315,6 +316,7 @@
     $(document).on("click", ".btnEdit", function () {
         $('#adminEditModal').modal('show');
         $('#adminEditModal-label').text("编辑用户信息");
+        $("#tbxUserNum").attr("readonly", "readonly");
         LoadFormFatherDept();
         var infoID = $(this).attr("data-id");
         var args = {
@@ -383,7 +385,7 @@
                         }
                         else {
                             $("#adminEditModal").modal("hide");
-                            toastr.error("保存错误，请联系5613877！", "提示");
+                            toastr.error(result, "操作错误！");
                         }
                     });
                 }
