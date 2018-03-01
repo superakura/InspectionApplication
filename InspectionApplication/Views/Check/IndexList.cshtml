@@ -265,9 +265,13 @@
             $.post("/Check/GetNoCheckList", "", function (data, textStatus, jqXHR) {
                 $("#listInspectionSubmit").empty();
                 $.each(data, function (indexInArray, valueOfElement) {
+                    var isMaterialName = "";
+                    if (valueOfElement.IsMaterialName == "是") {
+                        isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
+                    }
                     var temp = "<li>";
                     var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
-                    temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></div>";
+                    temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>"+isMaterialName+" " + valueOfElement.ProductName + "</h3></div>";
                     temp += "<div class='panel-body'>";
                     temp += "【报检：" + valueOfElement.InspectionFatherDeptName+" | ";
                     temp += "" + valueOfElement.InspectionPersonName + " | 电话：" + valueOfElement.UserPhone + " | " + inspectionDate + "】";
@@ -315,10 +319,15 @@
             };
             $.post("/Add/GetInspectionDetail", encodeURIComponent(JSON.stringify(args)), function (result) {
                 $('#noCheckModal').modal('show');
+
                 var inspectionDeptList = result["inspectionDeptList"];
                 var inspectionInfo = result["inspectionInfo"][0];
 
-                $("#lblProductName").text("产品名称：" + inspectionInfo.ProductName);
+                var isMaterialName = "";
+                if (inspectionInfo.IsMaterialName == "是") {
+                    isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
+                }
+                $("#lblProductName").html("产品名称：" +isMaterialName+ inspectionInfo.ProductName);
                 $("#lblProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
                 $("#lblProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
                 $("#lblProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
@@ -331,6 +340,8 @@
                 $("#lblInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
                 $("#lblInspectionPerson").text("报检人：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | 电话：" + inspectionInfo.UserPhone);
                 $("#lblSamplePlace").text("采样地点/车号：" + inspectionInfo.SamplePlace);
+
+                $("#tbxInspectionRemark").val(inspectionInfo.DisposeRemark);
 
                 $("#noCheckInspectionID").text(inspectionInfo.InspectionApplicationID);
 
@@ -463,6 +474,10 @@
 
                     var temp = "";
                     $.each(listInfo, function (indexInArray, valueOfElement) {
+                        var isMaterialName = "";
+                        if (valueOfElement.IsMaterialName == "是") {
+                            isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
+                        }
                         temp += "<li>";
                         var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
                         //var arrivalDate = getJsonDate(valueOfElement.ArrivalDate);
@@ -476,7 +491,7 @@
                         //    state = "<span class='label label-info'>已接收</span> ";
                         //}
                         temp += "<div class='panel panel-default'>";
-                        temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" + valueOfElement.ProductName + "</h3></a></div>";
+                        temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" +isMaterialName+" "+ valueOfElement.ProductName + "</h3></a></div>";
                         temp += "<div class='panel-body'>";
                         temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
                         //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
@@ -599,7 +614,12 @@
                 var inspectionDeptList = result["inspectionDeptList"];
                 var inspectionInfo = result["inspectionInfo"][0];
 
-                $("#detailModal-label").text(inspectionInfo.ProductName);
+                var isMaterialName = "";
+                if (inspectionInfo.IsMaterialName == "是") {
+                    isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
+                }
+
+                $("#detailModal-label").html(isMaterialName+inspectionInfo.ProductName);
 
                 $("#lblDetailInspectionID").text(inspectionInfo.InspectionApplicationID);
                 $("#tbxDetailInspectionNum").val(inspectionInfo.InspectionApplicationNum);

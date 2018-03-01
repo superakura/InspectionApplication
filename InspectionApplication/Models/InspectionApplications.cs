@@ -89,5 +89,8 @@ namespace InspectionApplication.Models
         [Required]
         [StringLength(20)]
         public string InspectionApplicationState { get; set; }
+
+        [StringLength(20)]
+        public string IsMaterialName { get; set; }//是否为生产辅料系统名字,【是，否】
     }
 }

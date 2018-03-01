@@ -140,6 +140,8 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                 var samplePlace= postList["samplePlace"].ToString();
                 var productCount = postList["productCount"].ToString();
                 var inspectionDate =Convert.ToDateTime(postList["inspectionDate"].ToString());
+                var userRemark= postList["userRemark"].ToString();
+                var isMaterialName= postList["isMaterialName"].ToString();
 
                 Models.InspectionApplications inspectionApplications = new Models.InspectionApplications();
                 inspectionApplications.ProductName = productName;
@@ -151,6 +153,8 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                 inspectionApplications.ProductBatchNum = productBatchNum;
                 inspectionApplications.ProductCount = productCount;
                 inspectionApplications.SamplePlace = samplePlace;
+                inspectionApplications.DisposeRemark = userRemark;
+                inspectionApplications.IsMaterialName = isMaterialName;
 
                 inspectionApplications.InspectionPersonID = personInfo.UserID;
                 inspectionApplications.InspectionPersonName = personInfo.UserName;
@@ -282,6 +286,7 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
             }
         }
 
+        [AllowAnonymous]
         //根据报检单ID获取报检单详细信息
         public JsonResult GetInspectionDetail()
         {
@@ -321,6 +326,7 @@ where Dept_ParentID=1 and Dept_Order is not null order by Dept_Order";
                                          i.ProductType,
                                          i.SamplePlace,
                                          u.UserPhone,
+                                         i.IsMaterialName
                                      };
 
                 var inspectionDeptList = from d in db.ProductUseDept

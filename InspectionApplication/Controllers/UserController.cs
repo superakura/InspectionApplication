@@ -143,38 +143,57 @@ namespace InspectionApplication.Controllers
                 var userRole = infoList["userRole"].ToString();
 
                 var isOnlyUserNum = db.UserInfo.Where(w => w.UserNum == userNum).Count();
-                if (isOnlyUserNum==1)
+                if (userID == 0)
                 {
-                    return "员工编号不能重复！";
-                }
-                else
-                {
-                    if (userID == 0)
+                    //添加用户
+                    var deleteUserInfo = db.UserInfo.Where(w => w.UserNum == userNum).FirstOrDefault();
+                    //判断是否是已删除的用户，如果是已删除用户，则更新用户信息和用户状态
+                    if (deleteUserInfo != null && deleteUserInfo.UserState == 1)
                     {
-                        var userInfo = new Models.UserInfo();
-                        userInfo.UserName = userName;
-                        userInfo.UserRole = userRole;
-                        userInfo.UserPhone = userPhone;
-                        userInfo.UserNum = userNum;
-                        userInfo.UserRemark = userRemark;
-                        userInfo.UserDeptID = userdeptID;
-                        userInfo.UserState = 0;
-                        db.UserInfo.Add(userInfo);
+                        deleteUserInfo.UserName = userName;
+                        deleteUserInfo.UserRole = userRole;
+                        deleteUserInfo.UserPhone = userPhone;
+                        deleteUserInfo.UserRemark = userRemark;
+                        deleteUserInfo.UserDeptID = userdeptID;
+                        deleteUserInfo.UserState = 0;
                         db.SaveChanges();
                         return "ok";
                     }
                     else
                     {
-                        var userInfo = db.UserInfo.Find(userID);
-                        userInfo.UserName = userName;
-                        userInfo.UserRole = userRole;
-                        userInfo.UserPhone = userPhone;
-                        userInfo.UserNum = userNum;
-                        userInfo.UserRemark = userRemark;
-                        userInfo.UserDeptID = userdeptID;
-                        db.SaveChanges();
-                        return "ok";
+                        //如果不是已删除用户，判断员工编号是否充分
+                        if (isOnlyUserNum == 1)
+                        {
+                            return "员工编号不能重复！";
+                        }
+                        else
+                        {
+                            //如果员工编号不重复，则添加用户
+                            var userInfo = new Models.UserInfo();
+                            userInfo.UserName = userName;
+                            userInfo.UserRole = userRole;
+                            userInfo.UserPhone = userPhone;
+                            userInfo.UserNum = userNum;
+                            userInfo.UserRemark = userRemark;
+                            userInfo.UserDeptID = userdeptID;
+                            userInfo.UserState = 0;
+                            db.UserInfo.Add(userInfo);
+                            db.SaveChanges();
+                            return "ok";
+                        }
                     }
+                }
+                else
+                {
+                    //修改用户信息
+                    var userInfo = db.UserInfo.Find(userID);
+                    userInfo.UserName = userName;
+                    userInfo.UserRole = userRole;
+                    userInfo.UserPhone = userPhone;
+                    userInfo.UserRemark = userRemark;
+                    userInfo.UserDeptID = userdeptID;
+                    db.SaveChanges();
+                    return "ok";
                 }
             }
             catch (Exception ex)

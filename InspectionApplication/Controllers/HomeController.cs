@@ -72,9 +72,11 @@ namespace InspectionApplication.Controllers
                         //加true，进行测试用，上线后删除true
                         if (isRight == "1" || true)
                         {
+                            userInfo.UserPassword = pwd;
+                            db.SaveChanges();
                             #region 写入权限，登录转跳
                             FormsAuthenticationTicket authTicket =
-                                new FormsAuthenticationTicket(1, userID, DateTime.Now, DateTime.Now.AddMinutes(1), false, userInfo.UserRole);
+                                new FormsAuthenticationTicket(1, userID, DateTime.Now, DateTime.Now.AddMinutes(20), false, userInfo.UserRole);
 
                             string encryptedTicket = FormsAuthentication.Encrypt(authTicket);
 

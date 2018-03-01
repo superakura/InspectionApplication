@@ -47,7 +47,9 @@ namespace InspectionApplication.Controllers
                                  i.ProductBatchNum,
                                  i.ProductType,
                                  i.InspectionApplicationID,
-                                 u.UserPhone
+                                 u.UserPhone,
+                                 i.DisposeRemark,
+                                 i.IsMaterialName
                              };
                 return Json(result);
             }
@@ -98,7 +100,8 @@ namespace InspectionApplication.Controllers
                                          i.ProductType,
                                          i.SamplePlace,
                                          u.UserPhone,
-                                         disposePersonPhone = d.UserPhone
+                                         disposePersonPhone = d.UserPhone,
+                                         i.IsMaterialName
                                      };
 
                 var inspectionDeptList = from d in db.ProductUseDept
@@ -178,7 +181,7 @@ namespace InspectionApplication.Controllers
                 {
                     info.InspectionApplicationState = "审核回退";
                 }
-                info.DisposeRemark = inspectionRemark;
+                info.DisposeRemark =inspectionRemark;
                 info.DisposeDate = DateTime.Now;
                 info.DisposePersonName = person.UserName;
                 info.DisposePersonID = person.UserID;
@@ -243,7 +246,8 @@ namespace InspectionApplication.Controllers
                                  i.ProductPackingType,
                                  i.ProductType,
                                  i.SamplePlace,
-                                 u.UserPhone
+                                 u.UserPhone,
+                                 i.IsMaterialName
                              };
 
                 if (!string.IsNullOrEmpty(productName))
