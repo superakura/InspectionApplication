@@ -29,5 +29,7 @@
         public virtual DbSet<InspectionApplications> InspectionApplications { get; set; }
 
         public virtual DbSet<Log> Log { get; set; }
+
+        public virtual DbSet<NumCheck> NumCheck { get; set; }
     }
 }

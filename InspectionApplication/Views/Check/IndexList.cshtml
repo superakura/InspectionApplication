@@ -2,6 +2,7 @@
 @{
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
+<script src="~/Scripts/bootstrap3-typeahead.min.js"></script>
 <div class="modal fade" id="noCheckModal" tabindex="-1" role="dialog" aria-labelledby="noCheckModal-label">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -271,9 +272,9 @@
                     }
                     var temp = "<li>";
                     var inspectionDate = getJsonDate(valueOfElement.InspectionDate);
-                    temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>"+isMaterialName+" " + valueOfElement.ProductName + "</h3></div>";
+                    temp += "<div class='panel panel-primary'><div class='panel-heading'><h3 class='panel-title'>" + isMaterialName + " " + valueOfElement.ProductName + "</h3></div>";
                     temp += "<div class='panel-body'>";
-                    temp += "【报检：" + valueOfElement.InspectionFatherDeptName+" | ";
+                    temp += "【报检：" + valueOfElement.InspectionFatherDeptName + " | ";
                     temp += "" + valueOfElement.InspectionPersonName + " | 电话：" + valueOfElement.UserPhone + " | " + inspectionDate + "】";
                     temp += "【批号：" + valueOfElement.ProductBatchNum + "】 ";
                     temp += "<button class='btn btn-success btn-sm btnDispose' data-id='" + valueOfElement.InspectionApplicationID + "'>处理</button>";
@@ -284,11 +285,10 @@
                 var noCheckCount = $("#noCheckCount").text();//当前列表的数量
 
                 //首次加载，不播放提示音、更新当前信息数量
-                if (noCheckCount==0) {
+                if (noCheckCount == 0) {
                     $("#noCheckCount").text(infoLength);
                 }
-                else
-                {
+                else {
                     $("#noCheckCount").text(infoLength);
                     //如果最新数据的数量大于当前的信息数量，则播放提示音
                     if (infoLength > noCheckCount) {
@@ -301,7 +301,7 @@
 
         //获取全部二级单位
         function LoadFatherDept() {
-            $.post("/Home/GetFatherDept","", function (result) {
+            $.post("/Home/GetFatherDept", "", function (result) {
                 var temp = "<option value=''>全部</option>";
                 $.each(result, function (indexInArray, valueOfElement) {
                     temp += "<option value='" + valueOfElement.DeptID + "'>" + valueOfElement.DeptName + "</option>";
@@ -327,7 +327,7 @@
                 if (inspectionInfo.IsMaterialName == "是") {
                     isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
                 }
-                $("#lblProductName").html("产品名称：" +isMaterialName+ inspectionInfo.ProductName);
+                $("#lblProductName").html("产品名称：" + isMaterialName + inspectionInfo.ProductName);
                 $("#lblProductBatchNum").text("产品批号：" + inspectionInfo.ProductBatchNum);
                 $("#lblProductDealer").text("经销商：" + inspectionInfo.ProductDealer);
                 $("#lblProductPackingType").text("包装规格：" + inspectionInfo.ProductPackingType);
@@ -355,7 +355,7 @@
 
         //检查报检单编号是否重复
         function CheckInspectionNum(num) {
-            var args = { "num": num};
+            var args = { "num": num };
             $.post("/Check/CheckInspectionNum", encodeURIComponent(JSON.stringify(args)), function (result) {
                 console.log(result);
                 return result;
@@ -491,7 +491,7 @@
                         //    state = "<span class='label label-info'>已接收</span> ";
                         //}
                         temp += "<div class='panel panel-default'>";
-                        temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" +isMaterialName+" "+ valueOfElement.ProductName + "</h3></a></div>";
+                        temp += "<div class='panel-heading'><a href='#' class='btnDetail' data-id='" + valueOfElement.InspectionApplicationID + "'><h3 class='panel-title'>" + isMaterialName + " " + valueOfElement.ProductName + "</h3></a></div>";
                         temp += "<div class='panel-body'>";
                         temp += "【编号：" + valueOfElement.InspectionApplicationNum + "】";
                         //temp += "【生产厂家：" + valueOfElement.ProductFactory + "】";
@@ -510,7 +510,7 @@
                         temp += "</div></div></li>";
                     });
                     $("#listInspectionCheck").empty().append(temp);
-                    
+
                     var options = {
                         numberOfPages: 6,
                         bootstrapMajorVersion: 3,
@@ -582,17 +582,15 @@
         $("#btnSearch").click(function () {
             var disposeDateStart = $("#tbxDisposeDateStart").val();
             var disposeDateEnd = $("#tbxDisposeDateEnd").val();
-            if (disposeDateEnd != ""||disposeDateStart!="") {
+            if (disposeDateEnd != "" || disposeDateStart != "") {
                 if (CompareDate(disposeDateStart, disposeDateEnd)) {
                     getList(1, $("#ddlPageSize").val());
                 }
-                else
-                {
+                else {
                     toastr.error("日期范围必须填写完整，结束日期必须大于开始日期！", "提示");
                 }
             }
-            else
-            {
+            else {
                 getList(1, $("#ddlPageSize").val());
             }
         });
@@ -619,7 +617,7 @@
                     isMaterialName = "<span class='label label-warning'><i class='glyphicon glyphicon-duplicate'></i></span>";
                 }
 
-                $("#detailModal-label").html(isMaterialName+inspectionInfo.ProductName);
+                $("#detailModal-label").html(isMaterialName + inspectionInfo.ProductName);
 
                 $("#lblDetailInspectionID").text(inspectionInfo.InspectionApplicationID);
                 $("#tbxDetailInspectionNum").val(inspectionInfo.InspectionApplicationNum);
@@ -636,9 +634,9 @@
 
                 $("#lblDetailInspectionPerson").text("报检人：" + inspectionInfo.InspectionFatherDeptName + " | " + inspectionInfo.InspectionPersonName + " | 电话：" + inspectionInfo.UserPhone);
                 $("#lblDetailDisposePerson").text("接收人：" + inspectionInfo.DisposePersonName + " | 电话：" + inspectionInfo.disposePersonPhone);
-               
-                $("#lblDetailInspectionDate").text("报检日期："+getJsonDate(inspectionInfo.InspectionDate));
-                $("#lblDetailDisposeDate").text("接收时间："+ getJsonDateTime(inspectionInfo.DisposeDate));
+
+                $("#lblDetailInspectionDate").text("报检日期：" + getJsonDate(inspectionInfo.InspectionDate));
+                $("#lblDetailDisposeDate").text("接收时间：" + getJsonDateTime(inspectionInfo.DisposeDate));
 
                 $("#lblDetailRemark").text("备注：" + inspectionInfo.DisposeRemark);
 
@@ -655,7 +653,7 @@
             var inspectionNum = $("#tbxDetailInspectionNum").val();
             var inspectionID = $("#lblDetailInspectionID").text();
             if (inspectionNum == "") {
-                toastrl.error("报检单编号不能为空！","提示")
+                toastrl.error("报检单编号不能为空！", "提示")
             }
             else {
                 var argsNum = { "num": inspectionNum };
@@ -667,7 +665,7 @@
                                 return;
                             }
                             else {
-                                var args = { "id": inspectionID,"inspectionNum": inspectionNum };
+                                var args = { "id": inspectionID, "inspectionNum": inspectionNum };
                                 $.post("/Check/EditInspectionNum", encodeURIComponent(JSON.stringify(args)), function (result) {
                                     if (result == "ok") {
                                         toastr.success("修改报检单编号成功！", "提示");
@@ -752,6 +750,23 @@
             }
             else {
                 toastr.error("日期范围不能为空！", "提示");
+            }
+        });
+
+        //根据输入提示报检单编号信息
+        $("#tbxInspectionNum").typeahead({
+            source: function (query, process) {//query对象就是输入框的值
+                var args = { "num": query };
+                $.post("/Check/GetNumList", encodeURIComponent(JSON.stringify(args)), function (data) {
+                    var arry = [];
+                    $.each(data, function (name, val) {
+                        arry.push(val["TypeOneString"] + "-" + val["TypeTwoString"]);
+                    })
+                    process(arry);
+                });
+            },
+            afterSelect: function (query, process) {//执行完成后的操作
+                
             }
         });
     });

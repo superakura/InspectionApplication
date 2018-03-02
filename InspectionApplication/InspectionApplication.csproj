@@ -130,6 +130,7 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Scripts\angular.min.js" />
     <Content Include="Scripts\bootstrap-paginator.min.js" />
+    <Content Include="Scripts\bootstrap3-typeahead.min.js" />
     <Content Include="Scripts\Ewin.js" />
     <Content Include="Scripts\html5shiv.js" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
@@ -212,6 +213,14 @@
     <Compile Include="Migrations\201802110136297_edit11.Designer.cs">
       <DependentUpon>201802110136297_edit11.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201803010231095_edit12.cs" />
+    <Compile Include="Migrations\201803010231095_edit12.Designer.cs">
+      <DependentUpon>201803010231095_edit12.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201803020243583_edit13.cs" />
+    <Compile Include="Migrations\201803020243583_edit13.Designer.cs">
+      <DependentUpon>201803020243583_edit13.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\Log.cs" />
@@ -220,6 +229,7 @@
     <Compile Include="Models\InspectionApplications.cs" />
     <Compile Include="Models\Material.cs" />
     <Compile Include="Models\Material_Type.cs" />
+    <Compile Include="Models\NumCheck.cs" />
     <Compile Include="Models\ViewMenu.cs" />
     <Compile Include="Models\ProductUseDept.cs" />
     <Compile Include="Models\UserInfo.cs" />
@@ -285,6 +295,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201802110136297_edit11.resx">
       <DependentUpon>201802110136297_edit11.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803010231095_edit12.resx">
+      <DependentUpon>201803010231095_edit12.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803020243583_edit13.resx">
+      <DependentUpon>201803020243583_edit13.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

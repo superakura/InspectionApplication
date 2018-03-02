@@ -176,6 +176,23 @@ namespace InspectionApplication.Controllers
                 {
                     info.InspectionApplicationNum = inspectionNum;
                     info.InspectionApplicationState = "审核通过";
+
+                    #region 拆分报检单编号，写入NumCheck表
+                    string[] numList = inspectionNum.Split('-');
+                    InspectionApplication.Models.NumCheck numCheck = new Models.NumCheck();
+                    numCheck.InspectionApplicationID = info.InspectionApplicationID;
+                    //例如编号：02-023
+                    numCheck.InspectionNum = inspectionNum;//更新报检单编号
+                    numCheck.TypeOneString = numList[0];//02
+                    numCheck.TypeTwoString = numList[1];//023
+                    var typeOneInt = 0;
+                    var typeTwoInt = 0;
+                    int.TryParse(numList[0], out typeOneInt);
+                    int.TryParse(numList[1], out typeTwoInt);
+                    numCheck.TypeOneInt = typeOneInt;
+                    numCheck.TypeTwoInt = typeTwoInt;
+                    db.NumCheck.Add(numCheck);
+                    #endregion
                 }
                 else
                 {
@@ -312,6 +329,22 @@ namespace InspectionApplication.Controllers
                 log.LogType = "修改报检单编号";
                 log.InspectionID = inspectionInfo.InspectionApplicationID;
                 db.Log.Add(log);
+
+                #region 拆分报检单编号，根据InspectionApplicationID修改NumCheck表
+                string[] numList = inspectionNum.Split('-');
+                var numCheck = db.NumCheck.Where(w => w.InspectionApplicationID == inspectionID).FirstOrDefault() ;
+
+                //例如编号：02-023
+                numCheck.InspectionNum = inspectionNum;//更新报检单编号
+                numCheck.TypeOneString = numList[0];//02
+                numCheck.TypeTwoString = numList[1];//023
+                var typeOneInt = 0;
+                var typeTwoInt = 0;
+                int.TryParse(numList[0], out typeOneInt);
+                int.TryParse(numList[1], out typeTwoInt);
+                numCheck.TypeOneInt = typeOneInt;
+                numCheck.TypeTwoInt = typeTwoInt;
+                #endregion
 
                 db.SaveChanges();
                 return "ok";
@@ -480,6 +513,18 @@ namespace InspectionApplication.Controllers
             }
             designer.Save(fileToSave, FileFormatType.Excel97To2003);
             return File(fileToSave, "application/vnd.ms-excel", filename + ".xls");
+        }
+
+        //查询报检单编号序列--6项
+        [HttpPost]
+        public JsonResult GetNumList()
+        {
+            var postList =
+  JsonConvert.DeserializeObject<Dictionary<String, Object>>(HttpUtility.UrlDecode(Request.Form.ToString()));
+            var num = postList["num"].ToString();
+            var list = db.NumCheck.Where(w => w.TypeOneString == num).OrderByDescending(o => o.TypeTwoInt).Take(6).ToList();
+            //var list = db.NumCheck.Where(w => (w.TypeOneString+"-") == num).OrderByDescending(o => o.TypeTwoInt).Take(6).ToList();
+            return Json(list);
         }
     }
 }
